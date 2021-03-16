@@ -16,6 +16,7 @@ namespace GFEditor.XLuaFramework
             {
                 Directory.Delete(root, true);
             }
+
             Directory.CreateDirectory(root);
             string[] emptyStrings = new string[0];
             OnPostprocessAllAssets(AssetDatabase.GetAllAssetPaths()

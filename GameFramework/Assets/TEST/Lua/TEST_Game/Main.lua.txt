@@ -3,18 +3,18 @@ Main = {}
 local function Start()
     gflog.log("TEST", gftime.getMillisecondsSinceStartup())
     --[#if UNITY_EDIT2OR || (CLIENT_DEBUG || UNITY_EDITOR)
-    gflog.log("a", "nsaer")
+    gflog.log("TEST", "nsaer")
     --]#endif
     
-    --[#if gf_DEBUG && !UNITY_EDITOR
-    gflog.error("c3wf", "432qg")
+    --[#if GF_DEBUG && !UNITY_EDITOR
+    gflog.error("TEST", "432qg")
     --]#endif
 
-    --[#if gf_DEBUG && UNITY_EDITOR
-    gflog.warning("f23f", "asdfe")
+    --[#if GF_DEBUG && UNITY_EDITOR
+    gflog.warning("TEST", "asdfe")
     --]#endif
     gflog.log("TEST", gftime.getMillisecondsSinceStartup())
-end
+end 
 
 Main.Start = Start
 return Main

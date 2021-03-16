@@ -69,7 +69,7 @@ static int gfloginternal_log(lua_State *L)
 }
 
 
-static int gfloginternal_waring(lua_State *L)
+static int gfloginternal_warning(lua_State *L)
 {
 	return gfloginternal_writelog(L, TYPE_WARING);
 }
@@ -128,7 +128,7 @@ LUALIB_API int luaopen_gfloginternal(lua_State *L)
 
 	luaL_Reg reg[] = {
 		{"log", gfloginternal_log},
-		{"waring", gfloginternal_waring},
+		{"warning", gfloginternal_warning},
 		{"error", gfloginternal_error},
 		{"verbose", gfloginternal_verbose},
 		{ NULL, NULL }

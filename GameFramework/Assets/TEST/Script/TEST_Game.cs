@@ -64,14 +64,14 @@ namespace Test.Game
             GC.Collect();
             GC.Collect();
 
-            //client.Send(System.Text.Encoding.UTF8.GetBytes("sdf"));
-            //client.Send(System.Text.Encoding.UTF8.GetBytes("fgawery"));
-            //client.Send(System.Text.Encoding.UTF8.GetBytes("besart4"));
-            //yield return new WaitForSeconds(2.0f);
-            //client.Send(System.Text.Encoding.UTF8.GetBytes("fae7"));
-            //client.Send(System.Text.Encoding.UTF8.GetBytes("g34tg56"));
-            //client.Send(System.Text.Encoding.UTF8.GetBytes("gwa3tr3"));
-            //yield return new WaitForSeconds(2.0f);
+            client.Send(System.Text.Encoding.UTF8.GetBytes("sdf"));
+            client.Send(System.Text.Encoding.UTF8.GetBytes("fgawery"));
+            client.Send(System.Text.Encoding.UTF8.GetBytes("besart4"));
+            yield return new WaitForSeconds(2.0f);
+            client.Send(System.Text.Encoding.UTF8.GetBytes("fae7"));
+            client.Send(System.Text.Encoding.UTF8.GetBytes("g34tg56"));
+            client.Send(System.Text.Encoding.UTF8.GetBytes("gwa3tr3"));
+            yield return new WaitForSeconds(2.0f);
             client.Disconnect();
         }
 

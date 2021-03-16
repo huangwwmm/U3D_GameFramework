@@ -92,6 +92,14 @@ namespace GF.Core
 
             LuaScriptingDefine = new HashSet<string>();
 
+#if UNITY_EDITOR
+            LuaScriptingDefine.Add("UNITY_EDITOR");
+#endif
+
+#if GF_DEBUG
+            LuaScriptingDefine.Add("GF_DEBUG");
+#endif
+
             return this;
         }
     }

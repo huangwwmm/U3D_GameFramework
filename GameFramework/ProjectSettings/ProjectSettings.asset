@@ -574,7 +574,7 @@ PlayerSettings:
   webGLThreadsSupport: 0
   webGLWasmStreaming: 0
   scriptingDefineSymbols:
-    1: GF_DEBUG;GF_LOG_EDITOR_V;GF_LOG_EDITOR_L;GF_LOG_EDITOR_W;GF_LOG_EDITOR_E;GF_LOG_EDITOR_A;GF_LOG_BUILT_V;GF_LOG_BUILT_L;GF_LOG_BUILT_W;GF_LOG_BUILT_E;GF_LOG_BUILT_A
+    1: GF_DEBUG;GF_LOG_EDITOR_L;GF_LOG_EDITOR_W;GF_LOG_EDITOR_E;GF_LOG_EDITOR_A;GF_LOG_BUILT_L;GF_LOG_BUILT_W;GF_LOG_BUILT_E;GF_LOG_BUILT_A
   platformArchitecture: {}
   scriptingBackend: {}
   il2cppCompilerConfiguration: {}
