@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 468770c6affc5f4448707005c64dc578, type: 3}
+  m_Name: T1_Lightmap
+  m_EditorClassIdentifier: 
+  LightmapsMode: 1
+  LightmapColor:
+  - {fileID: 2800000, guid: e1ff9245fbd91c94794a62c07887ce88, type: 3}
+  LightmapDir:
+  - {fileID: 2800000, guid: 4317a25cd394d0047a8d30c42c05cbe5, type: 3}
+  ShadowMask:
+  - {fileID: 0}

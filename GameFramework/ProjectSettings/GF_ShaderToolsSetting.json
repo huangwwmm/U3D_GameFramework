@@ -1,0 +1,9 @@
+{
+    "PreprocessShadersSettings": [
+        {
+            "MonoScriptGUID": "df9cdf1ad01e4ad428c73d1d50554b0d",
+            "MonoScriptTypeFullName": "GYEditor.ShaderTools.PreprocessShaders.LogPreprocessShadersA",
+            "SettingJson": "{\"CallbackOrder\":0,\"ReportDirectory\":\"{Application.dataPath}/../ShaderReport/{DateTime.Now}\"}"
+        }
+    ]
+}

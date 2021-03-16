@@ -1,0 +1,9 @@
+{
+    "name": "com.huangwm.gameframework",
+    "displayName": "GF",
+    "version": "0.0.1",
+    "description": "Game framework",
+    "author": "huangwm",
+    "license": "MIT",
+    "unity": "2018.3"
+  }
