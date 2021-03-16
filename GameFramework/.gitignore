@@ -8,3 +8,5 @@
 
 /*.csproj
 /*.sln
+
+!/Packages/com.huangwm.gameframework/*
