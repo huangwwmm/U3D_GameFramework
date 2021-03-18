@@ -69,7 +69,7 @@ namespace GF.XLuaFramework
             #endregion
 
             #region load log
-            if (initializeData.EnableHighPerformanceLog)
+            if (initializeData.LuaEnableHighPerformanceLog)
             {
                 m_LuaEnv.AddBuildin("gfloginternal", OpenLuaLibrary.LoadGFLogInternal);
                 Execuret_RequireToGlobalVariable("gfloginternal", "gfloginternal");

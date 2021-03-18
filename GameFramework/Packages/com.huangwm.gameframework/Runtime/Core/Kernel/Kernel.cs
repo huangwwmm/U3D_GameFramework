@@ -7,8 +7,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using GF.Core.Lua;
-using GF.Core.Asset;
 using GF.Core.Entity;
+using GF.Asset.Address;
 
 namespace GF.Core
 {
@@ -16,7 +16,7 @@ namespace GF.Core
     {
         public static ObjectPoolManager ObjectPool;
         public static EventCenter EventCenter;
-        public static IAssetManager AssetManager;
+        public static AssetManager AssetManager;
         public static ILuaManager LuaManager;
         public static BehaviourManager BehaviourManager;
         public static EntityManager EntityManager;
@@ -44,6 +44,9 @@ namespace GF.Core
             initializeData.EventTypes.Insert(0, typeof(EventName));
             EventCenter = new EventCenter(initializeData);
             yield return null;
+
+            AssetManager = new AssetManager();
+            yield return AssetManager.InitializeAsync(initializeData);
 
             EntityManager = new EntityManager(initializeData);
             yield return null;

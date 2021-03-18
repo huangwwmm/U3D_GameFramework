@@ -14,6 +14,7 @@ namespace GF.Core
         /// </summary>
         public List<Type> EventTypes;
 
+        #region Lua
         /// <summary>
         /// 资源<see cref="GF.Core.Lua.ILuaScripts"/>的Key
         /// </summary>
@@ -36,7 +37,7 @@ namespace GF.Core
         /// False : Lua会直接调用c#的Log函数输出
         ///         缺点：Lua和C#频繁交互，性能不好
         /// </summary>
-        public bool EnableHighPerformanceLog;
+        public bool LuaEnableHighPerformanceLog;
 
 #if UNITY_EDITOR
         /// <summary>
@@ -74,6 +75,10 @@ namespace GF.Core
         /// </code>
         /// </remarks>
         public HashSet<string> LuaScriptingDefine;
+        #endregion
+
+        #region AssetBundle
+        #endregion
 
         public KernelInitializeData RestoreToDefault()
         {
@@ -83,7 +88,7 @@ namespace GF.Core
             LuaEnterFile = "TEST_Game.Main";
             LuaEnterFunction = "Main.Start()";
 
-            EnableHighPerformanceLog = true;
+            LuaEnableHighPerformanceLog = true;
             LuaLibs = null;
 
 #if UNITY_EDITOR

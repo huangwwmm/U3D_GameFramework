@@ -21,7 +21,7 @@ namespace Test.Game
             {
                 typeof(EventName)
             };
-            kernelInitializeData.EnableHighPerformanceLog = true;
+            kernelInitializeData.LuaEnableHighPerformanceLog = true;
 
 #if UNITY_EDITOR
             kernelInitializeData.LoadLuaByAssetDatabaseWhenEditor = true;

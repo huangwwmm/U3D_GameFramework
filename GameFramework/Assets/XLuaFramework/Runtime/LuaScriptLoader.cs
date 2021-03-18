@@ -19,7 +19,8 @@ namespace GF.XLuaFramework
 
         public LuaScriptLoader(KernelInitializeData initializeData, Dictionary<string, byte[]> fileToCodes)
         {
-            Core.Kernel.AssetManager.LoadAssetAsync(initializeData.LuaScriptsAssetKey, OnLuaScriptLoaded);
+            // UNDONE
+            //Core.Kernel.AssetManager.LoadAssetAsync(initializeData.LuaScriptsAssetKey, OnLuaScriptLoaded);
             m_FileToCodes = fileToCodes;
         }
 
@@ -33,7 +34,8 @@ namespace GF.XLuaFramework
                     string scriptText = LuaScriptParser.s_Instance.Parse(script.text);
                     m_FileToCodes.Add(name, System.Text.Encoding.UTF8.GetBytes(scriptText));
                 }
-                Core.Kernel.AssetManager.ReleaseAsset(m_LuaScripts);
+                // UNDONE
+                //Core.Kernel.AssetManager.ReleaseAsset(m_LuaScripts);
             }
             m_LuaScripts = null;
 

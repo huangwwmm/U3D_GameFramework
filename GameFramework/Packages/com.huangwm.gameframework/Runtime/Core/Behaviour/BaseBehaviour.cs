@@ -45,7 +45,7 @@ namespace GF.Core.Behaviour
         /// </summary>
         private string m_Name;
         /// <summary>
-        /// 所属的组名
+        /// 所属的组名，<see cref="m_Priority"/>相同且组名相同的Behaviour会在一起处理并发
         /// </summary>
         private string m_Group;
         /// <summary>
