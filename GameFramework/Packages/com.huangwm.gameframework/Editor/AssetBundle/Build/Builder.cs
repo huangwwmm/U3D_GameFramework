@@ -8,6 +8,7 @@ using GFEditor.Asset.AssetBundle.Rule;
 using GF.Common;
 using GF.Common.Debug;
 using System.Linq;
+using LitJson;
 
 namespace GFEditor.Asset.AssetBundle.Build
 {
@@ -135,6 +136,8 @@ namespace GFEditor.Asset.AssetBundle.Build
             {
                 // 写失败了也不影响，不需要handle
             }
+
+            SaveAssetKeyToBundleMap(context);
 
             return assetBundleBuilds;
         }
@@ -292,6 +295,24 @@ namespace GFEditor.Asset.AssetBundle.Build
 
             rules.Sort(BaseRule.Comparison);
             return rules;
+        }
+
+        /// <summary>
+        /// 保存AssetKeyToAsset映射Json文件
+        /// </summary>
+        /// <param name="context"></param>
+        public static void SaveAssetKeyToBundleMap(Context context)
+        {
+            BuildSetting setting = BuildSetting.GetInstance();
+            string path = setting.GetFormateAssetKeyToAssetMapPath();
+
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+
+            string json = JsonMapper.ToJson(context.GetAssetKeyToAsset());
+            File.WriteAllText(path, json);
         }
     }
 }

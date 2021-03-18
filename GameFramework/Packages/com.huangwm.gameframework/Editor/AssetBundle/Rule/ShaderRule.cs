@@ -51,7 +51,7 @@ namespace GFEditor.Asset.AssetBundle.Rule
                     if (shader)
                     {
                         Shaders?.AddShader(shader );
-                        context.AddAsset(asset, _Name);
+                        context.AddAsset(asset, null, _Name);
                     }
                 }
                 else if (extension == ".compute")
@@ -60,7 +60,7 @@ namespace GFEditor.Asset.AssetBundle.Rule
                     if (shader)
                     {
                         Shaders?.AddComputeShader(shader );
-                        context.AddAsset(asset, _Name);
+                        context.AddAsset(asset, null, _Name);
                     }
                 }
             }
@@ -82,7 +82,7 @@ namespace GFEditor.Asset.AssetBundle.Rule
             else
             {
                 Shaders?.AddShaderVariantCollection(shaderVariantCollection);
-                context.AddAsset(path, _Name);
+                context.AddAsset(path, null, _Name);
             }
         }
 

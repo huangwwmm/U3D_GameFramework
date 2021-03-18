@@ -16,5 +16,5 @@ MonoBehaviour:
   Shaders: {fileID: 0}
   AutoGenerateShaderVariantCollection: 0
   AutoGenerateShaderVariantCollectionPath: 
-  CustomShaderVariantCollectionPathsFoldout: 0
+  CustomShaderVariantCollectionPathsFoldout: 1
   CustomShaderVariantCollectionPaths: []

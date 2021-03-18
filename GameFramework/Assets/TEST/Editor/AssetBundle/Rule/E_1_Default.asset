@@ -18,7 +18,6 @@ MonoBehaviour:
   AssetFilterFoldout: 1
   ExtensionFilterType: 0
   ExtensionFilterList: []
-  BundleNameFoldout: 1
-  BundleNameType: 1
-  SpecifyBundleName: prefab
-  BundleNameFormat: 
+  BundleNameAndAssetKeyFoldout: 1
+  BundleNameFormat: '{p}_{an}_{e}'
+  AssetKeyFormat: '{p}_{an}_{e}'

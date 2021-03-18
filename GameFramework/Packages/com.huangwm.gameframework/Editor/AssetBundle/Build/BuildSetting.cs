@@ -16,6 +16,7 @@ namespace GFEditor.Asset.AssetBundle.Build
 
         public string BuildOutput = string.Empty;
         public string BundleBuildsPath = string.Empty;
+        public string AssetKeyToAssetMapPath = string.Empty;
         public BuildAssetBundleOptions BuildAssetBundleOptions;
         public bool UseCachedBuild;
         public bool ResetBundleName;
@@ -40,6 +41,11 @@ namespace GFEditor.Asset.AssetBundle.Build
         public string GetFormatedBundleBuildsPath()
         {
             return FormatPath(BundleBuildsPath);
+        }
+
+        public string GetFormateAssetKeyToAssetMapPath()
+        {
+            return FormatPath(AssetKeyToAssetMapPath);
         }
 
         protected string FormatPath(string path)

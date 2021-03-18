@@ -10,6 +10,7 @@ namespace GFEditor.Asset.AssetBundle.Build
     {
         private string m_FormatedBuildOutput;
         private string m_FormatedBundleBuildsPath;
+        private string m_FormatedAssetKeyToAssetMapPath;
 
         [SettingsProvider]
         public static SettingsProvider CreateSettingsProvider()
@@ -24,6 +25,7 @@ namespace GFEditor.Asset.AssetBundle.Build
         {
             m_FormatedBuildOutput = BuildSetting.GetInstance().GetFormatedBuildOutput();
             m_FormatedBundleBuildsPath = BuildSetting.GetInstance().GetFormatedBundleBuildsPath();
+            m_FormatedAssetKeyToAssetMapPath = BuildSetting.GetInstance().GetFormateAssetKeyToAssetMapPath();
         }
 
         public override void OnGUI(string searchContext)
@@ -95,6 +97,21 @@ namespace GFEditor.Asset.AssetBundle.Build
                         + "可以通过这个工具设置BundleName，但是不勾选打包AB的选项。然后通过AssetBundleBrowser打包"
                 , MessageType.Info);
             setting.ResetBundleName = EditorGUILayout.Toggle("设置BundleName", setting.ResetBundleName);
+            EditorGUILayout.Space();
+
+            if (EGLUtility.Folder(out setting.AssetKeyToAssetMapPath
+                , "AssetMap路径"
+                , setting.AssetKeyToAssetMapPath))
+            {
+                m_FormatedAssetKeyToAssetMapPath = BuildSetting.GetInstance().GetFormateAssetKeyToAssetMapPath();
+            }
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("AssetMap路径", m_FormatedAssetKeyToAssetMapPath);
+            if (GUILayout.Button("打开", GUILayout.Width(36)))
+            {
+                EditorUtility.RevealInFinder(m_FormatedAssetKeyToAssetMapPath);
+            }
+            EditorGUILayout.EndHorizontal();
             EditorGUILayout.Space();
 
             setting.BuildAssetBundleOptions = (BuildAssetBundleOptions)EditorGUILayout.EnumFlagsField("打包选项", setting.BuildAssetBundleOptions);

@@ -1,4 +1,5 @@
-﻿using GF.Common.Debug;
+﻿using GF.Asset.AssetBundle.Build;
+using GF.Common.Debug;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
@@ -8,35 +9,50 @@ namespace GFEditor.Asset.AssetBundle.Build
 {
     public class Context
     {
-        private Dictionary<string, List<string>> m_BundleToAsset = new Dictionary<string, List<string>>();
-        private Dictionary<string, string> m_AssetToBundle = new Dictionary<string, string>();
-        private Dictionary<string, HashSet<string>> m_AssetDependenciesToBundle;
+        private Dictionary<string, List<string>> m_BundleToAssetPath = new Dictionary<string, List<string>>();
+        private Dictionary<string, string> m_AssetPathToBundle = new Dictionary<string, string>();
+        private Dictionary<string, HashSet<string>> m_AssetPathDependenciesToBundle;
+        private Dictionary<string, AssetInfo> m_AssetKeyToAsset = new Dictionary<string, AssetInfo>();
+        
 
         public void SetAssetDependenciesToBundle(Dictionary<string, HashSet<string>> assetDependenciesToBundle)
         {
-            m_AssetDependenciesToBundle = assetDependenciesToBundle;
+            m_AssetPathDependenciesToBundle = assetDependenciesToBundle;
         }
 
         public Dictionary<string, HashSet<string>> GetAssetDependenciesToBundle()
         {
-            return m_AssetDependenciesToBundle;
+            return m_AssetPathDependenciesToBundle;
         }
 
         public bool IncludedAsset(string assetPath)
         {
-            return m_AssetToBundle.ContainsKey(assetPath);
+            return m_AssetPathToBundle.ContainsKey(assetPath);
         }
 
-        public void AddAsset(string assetPath, string bundleName)
+        public void AddAsset(string assetPath, string assetKey, string bundleName)
         {
             bundleName = bundleName.ToLower();
-            if (!m_AssetToBundle.ContainsKey(assetPath))
+            if (!string.IsNullOrEmpty(assetKey))
             {
-                m_AssetToBundle[assetPath] = bundleName;
-                if (!m_BundleToAsset.TryGetValue(bundleName, out List<string> assets))
+                if (!m_AssetKeyToAsset.ContainsKey(assetKey))
+                {
+                    m_AssetKeyToAsset.Add(assetKey, new AssetInfo(assetPath, bundleName));
+                }
+                else
+                {
+                    AssetInfo alreadyIncludedAsset = m_AssetKeyToAsset[assetKey];
+                    throw new Exception($"Already included asset Key({assetKey}):Path({assetPath})\nIncluded asset:({alreadyIncludedAsset.AssetPath})");
+                }
+            }
+
+            if (!m_AssetPathToBundle.ContainsKey(assetPath))
+            {
+                m_AssetPathToBundle[assetPath] = bundleName;
+                if (!m_BundleToAssetPath.TryGetValue(bundleName, out List<string> assets))
                 {
                     assets = new List<string>();
-                    m_BundleToAsset.Add(bundleName, assets);
+                    m_BundleToAssetPath.Add(bundleName, assets);
                 }
 
                 assets.Add(assetPath);
@@ -49,9 +65,9 @@ namespace GFEditor.Asset.AssetBundle.Build
 
         public AssetBundleBuild[] GenerateAssetBundleBuild()
         {
-            AssetBundleBuild[] assetBundleBuilds = new AssetBundleBuild[m_BundleToAsset.Count];
+            AssetBundleBuild[] assetBundleBuilds = new AssetBundleBuild[m_BundleToAssetPath.Count];
             int iAssetBundleBuild = 0;
-            foreach (KeyValuePair<string, List<string>> kv in m_BundleToAsset)
+            foreach (KeyValuePair<string, List<string>> kv in m_BundleToAssetPath)
             {
                 string bundleName = kv.Key;
                 List<string> assetPaths = kv.Value;
@@ -83,17 +99,22 @@ namespace GFEditor.Asset.AssetBundle.Build
 
         public Dictionary<string, string>.KeyCollection GetIncludedAssetPath()
         {
-            return m_AssetToBundle.Keys;
+            return m_AssetPathToBundle.Keys;
         }
 
         public Dictionary<string, string> GetAssetToBundle()
         {
-            return m_AssetToBundle;
+            return m_AssetPathToBundle;
         }
 
         public Dictionary<string, List<string>> GetBundleToAsset()
         {
-            return m_BundleToAsset;
+            return m_BundleToAssetPath;
+        }
+
+        public Dictionary<string, AssetInfo> GetAssetKeyToAsset()
+        {
+            return m_AssetKeyToAsset;
         }
     }
 }

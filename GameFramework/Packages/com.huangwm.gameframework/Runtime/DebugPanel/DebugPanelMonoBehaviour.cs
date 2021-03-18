@@ -126,7 +126,9 @@ namespace GF.DebugPanel
             if (ms_Instance != this
                 || this == null)
             {
+#if UNITY_EDITOR
                 UnityEditor.EditorApplication.update -= EditorUpdate;
+#endif
 
                 m_Tabs = null;
                 DestroyImmediate(gameObject);

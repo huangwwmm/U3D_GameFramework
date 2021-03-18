@@ -5,7 +5,6 @@ using System;
 using GF.Common;
 using GFEditor.Asset.AssetBundle.Build;
 using GFEditor.Common.Utility;
-using GF.Common.Utility;
 
 namespace GFEditor.Asset.AssetBundle.Rule
 {
@@ -23,17 +22,19 @@ namespace GFEditor.Asset.AssetBundle.Rule
         public ExtensionFilterType ExtensionFilterType;
         public List<string> ExtensionFilterList;
 
-        public bool BundleNameFoldout;
-        public BundleNameType BundleNameType;
-        public string SpecifyBundleName = string.Empty;
+        public bool BundleNameAndAssetKeyFoldout;
         public string BundleNameFormat = string.Empty;
+        public string AssetKeyFormat = string.Empty;
+
+        private AssetInfoHelper m_AssetInfoHelper;
 
         public override void Execute(Context context)
         {
+            m_AssetInfoHelper = new AssetInfoHelper();
             switch (AssetCollectionType)
             {
                 case AssetCollectionType.All:
-                        CollectionAsset_Folder(context, RootPath);
+                    CollectionAsset_Folder(context, RootPath);
                     break;
                 case AssetCollectionType.ChildFolders:
                     {
@@ -58,15 +59,17 @@ namespace GFEditor.Asset.AssetBundle.Rule
             return HELP_TEXT;
         }
 
-        private void CollectionAsset_Folder(Context context, string parentPath)
+        private void CollectionAsset_Folder(Context context, string rootPath)
         {
-            string[] assets = AssetDatabase.FindAssets("", new string[] { parentPath });
+            string[] assets = AssetDatabase.FindAssets("", new string[] { rootPath });
+
             for (int iAsset = 0; iAsset < assets.Length; iAsset++)
             {
                 string iterAssetPath = AssetDatabase.GUIDToAssetPath(assets[iAsset]);
                 if (Filter(context, iterAssetPath))
                 {
-                    context.AddAsset(iterAssetPath, CaculateBundleName(parentPath, iterAssetPath));
+                    m_AssetInfoHelper.SetAssetInfo(iterAssetPath, rootPath);
+                    context.AddAsset(iterAssetPath, m_AssetInfoHelper.Format(AssetKeyFormat), m_AssetInfoHelper.Format(BundleNameFormat));
                 }
             }
         }
@@ -101,33 +104,6 @@ namespace GFEditor.Asset.AssetBundle.Rule
                     throw new Exception("Not supprot " + ExtensionFilterType.ToString());
             }
         }
-
-        private string CaculateBundleName(string parentPath, string assetPath)
-        {
-            string bundleName;
-            switch (BundleNameType)
-            {
-                case BundleNameType.Specify:
-                    bundleName = SpecifyBundleName;
-                    break;
-                case BundleNameType.FormatParentFolderName:
-                    string folderName = parentPath.Substring(parentPath.LastIndexOf('/') + 1);
-                    bundleName = string.Format(BundleNameFormat, folderName);
-                    break;
-                case BundleNameType.FormatAssetName:
-                    string assetName = System.IO.Path.GetFileName(assetPath);
-                    bundleName = string.Format(BundleNameFormat, assetName);
-                    break;
-                case BundleNameType.FormatRelativePath:
-                    string relativePath = assetPath.Substring(parentPath.Length + 1);
-                    bundleName = string.Format(BundleNameFormat, relativePath);
-                    break;
-                default:
-                    throw new Exception("Not supprot " + BundleNameType.ToString());
-            }
-
-            return StringUtility.FormatToVariableName(bundleName);
-        }
     }
 
     [CustomEditor(typeof(DefaultRule))]
@@ -158,11 +134,11 @@ namespace GFEditor.Asset.AssetBundle.Rule
             }
             EditorGUILayout.Space();
 
-            m_Rule.BundleNameFoldout = EditorGUILayout.Foldout(m_Rule.BundleNameFoldout, "Bundle名字");
-            if (m_Rule.BundleNameFoldout)
+            m_Rule.BundleNameAndAssetKeyFoldout = EditorGUILayout.Foldout(m_Rule.BundleNameAndAssetKeyFoldout, "BundleName & AssetKey");
+            if (m_Rule.BundleNameAndAssetKeyFoldout)
             {
                 EditorGUI.indentLevel++;
-                OnInspectorGUI_BundleName();
+                OnInspectorGUI_BundleNameAndAssetKey();
                 EditorGUI.indentLevel--;
             }
             EditorGUILayout.Space();
@@ -173,6 +149,22 @@ namespace GFEditor.Asset.AssetBundle.Rule
                 serializedObject.ApplyModifiedProperties();
                 EditorUtility.SetDirty(target);
             }
+        }
+
+        private void OnInspectorGUI_BundleNameAndAssetKey()
+        {
+            EditorGUILayout.HelpBox("Bundle Name和AssetKey支持以下Format：\n"
+                    + "\t{P}\t资源所在父目录名\n"
+                    + "\t{AN}\t资源名不包括扩展名 \n"
+                    + "\t{E}\t资源扩展名\n"
+                    + "例如：Assets/Test/Prefabs/TestAssets1.prefab\n"
+                    + "\t名称为 xxx, 包名为:  xxx\n"
+                    + "\t名称为 {P}_xxx, 包名为: prefabs_xxx\n"
+                    + "\t名称为{P}_{AN}, 包名为: prefabs_testassets1\n"
+                    + "\t名称为{P}_{AN}_{E}: 包名为: prefabs_testassets1_prefab"
+                , MessageType.Info);
+            m_Rule.BundleNameFormat = EditorGUILayout.TextField("名字Format", m_Rule.BundleNameFormat).ToLower();
+            m_Rule.AssetKeyFormat = EditorGUILayout.TextField("Key Format", m_Rule.AssetKeyFormat);
         }
 
         protected void OnEnable()
@@ -213,25 +205,6 @@ namespace GFEditor.Asset.AssetBundle.Rule
                     break;
                 default:
                     EditorGUILayout.HelpBox("不支持 " + m_Rule.ExtensionFilterType.ToString(), MessageType.Error);
-                    break;
-            }
-        }
-
-        private void OnInspectorGUI_BundleName()
-        {
-            m_Rule.BundleNameType = (BundleNameType)EditorGUILayout.EnumPopup("命名方式", m_Rule.BundleNameType);
-            switch (m_Rule.BundleNameType)
-            {
-                case BundleNameType.Specify:
-                    m_Rule.SpecifyBundleName = EditorGUILayout.TextField("指定名字", m_Rule.SpecifyBundleName).ToLower();
-                    break;
-                case BundleNameType.FormatParentFolderName:
-                case BundleNameType.FormatAssetName:
-                case BundleNameType.FormatRelativePath:
-                    m_Rule.BundleNameFormat = EditorGUILayout.TextField("名字Format", m_Rule.BundleNameFormat).ToLower();
-                    break;
-                default:
-                    EditorGUILayout.HelpBox("不支持 " + m_Rule.BundleNameType.ToString(), MessageType.Error);
                     break;
             }
         }

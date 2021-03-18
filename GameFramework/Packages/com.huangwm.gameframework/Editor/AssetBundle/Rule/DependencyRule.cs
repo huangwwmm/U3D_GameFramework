@@ -65,7 +65,7 @@ namespace GFEditor.Asset.AssetBundle.Rule
                         throw new Exception("Not Handle AutoDependenciesBunleType: " + AutoDependenciesBunleType);
                 }
 
-                context.AddAsset(asset, StringUtility.FormatToVariableName(bundleName));
+                context.AddAsset(asset, null, StringUtility.FormatToVariableName(bundleName));
             }
         }
 
