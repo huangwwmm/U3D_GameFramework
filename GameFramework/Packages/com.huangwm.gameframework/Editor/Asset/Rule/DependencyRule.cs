@@ -4,11 +4,11 @@ using System.IO;
 using System.Text;
 using GF.Common;
 using GF.Common.Utility;
-using GFEditor.Asset.AssetBundle.Build;
+using GFEditor.Asset.Build;
 using UnityEditor;
 using UnityEngine;
 
-namespace GFEditor.Asset.AssetBundle.Rule
+namespace GFEditor.Asset.Rule
 {
     [CTCreateAssetMenuItem("AssetBundle/创建规则/依赖", "E_1_Dependency")]
     public class DependencyRule : BaseRule

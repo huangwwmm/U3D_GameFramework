@@ -3,10 +3,10 @@ using UnityEditor;
 using UnityEngine;
 using System;
 using GF.Common;
-using GFEditor.Asset.AssetBundle.Build;
+using GFEditor.Asset.Build;
 using GFEditor.Common.Utility;
 
-namespace GFEditor.Asset.AssetBundle.Rule
+namespace GFEditor.Asset.Rule
 {
     [CTCreateAssetMenuItem("AssetBundle/创建规则/默认", "E_1_Default")]
     public class DefaultRule : BaseRule

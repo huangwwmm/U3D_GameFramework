@@ -1,4 +1,4 @@
-﻿namespace GFEditor.Asset.AssetBundle.Rule
+﻿namespace GFEditor.Asset.Rule
 {
     public enum AssetCollectionType
     {

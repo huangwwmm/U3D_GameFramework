@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace GF.Asset.AssetBundle.Build
+namespace GF.Asset.Build
 {
     public struct AssetInfo
     {

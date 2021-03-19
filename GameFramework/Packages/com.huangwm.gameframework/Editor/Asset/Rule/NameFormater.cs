@@ -2,7 +2,7 @@
 using System.Text;
 using System.IO;
 
-namespace GFEditor.Asset.AssetBundle.Rule
+namespace GFEditor.Asset.Rule
 {
     public class AssetInfoHelper
     {

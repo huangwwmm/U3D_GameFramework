@@ -1,11 +1,11 @@
-﻿using GF.Asset.AssetBundle.Build;
+﻿using GF.Asset.Build;
 using GF.Common.Debug;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace GFEditor.Asset.AssetBundle.Build
+namespace GFEditor.Asset.Build
 {
     public class Context
     {

@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using GF.Common;
-using GFEditor.Asset.AssetBundle.Build;
+using GFEditor.Asset.Build;
 using UnityEditor;
 using UnityEngine;
 
-namespace GFEditor.Asset.AssetBundle.Rule
+namespace GFEditor.Asset.Rule
 {
     [CTCreateAssetMenuItem("AssetBundle/创建规则/收集依赖", "E_1_CollectionDependency")]
     public class CollectionDependencyRule : BaseRule

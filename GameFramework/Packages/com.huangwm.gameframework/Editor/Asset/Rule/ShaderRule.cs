@@ -2,12 +2,12 @@
 using System.IO;
 using GF.Common;
 using GF.Core.Renderer;
-using GFEditor.Asset.AssetBundle.Build;
+using GFEditor.Asset.Build;
 using GFEditor.Common.Utility;
 using UnityEditor;
 using UnityEngine;
 
-namespace GFEditor.Asset.AssetBundle.Rule
+namespace GFEditor.Asset.Rule
 {
     [CTCreateAssetMenuItem("AssetBundle/创建规则/Shader", "E_1_Shader")]
     public class ShaderRule : BaseRule

@@ -78,6 +78,22 @@ namespace GF.Core
         #endregion
 
         #region AssetBundle
+
+        /// <summary>
+        /// 该文件存储：资源文件Key值与实际路径和AB包名称的对应关系
+        /// </summary>
+        public string AssetMapFile;
+
+        /// <summary>
+        /// 该文件存储： AB包的直接依赖关系
+        /// </summary>
+        public string BundleMapFile;
+
+        /// <summary>
+        /// AB包存储路径
+        /// </summary>
+        public string BundlePath;
+
         #endregion
 
         public KernelInitializeData RestoreToDefault()
@@ -104,6 +120,10 @@ namespace GF.Core
 #if GF_DEBUG
             LuaScriptingDefine.Add("GF_DEBUG");
 #endif
+
+            BundleMapFile = @"D:\huangwenmiaoPro\U3D_GameFramework\GameFramework\Build\BundleMap.json";
+            AssetMapFile = @"D:\huangwenmiaoPro\U3D_GameFramework\GameFramework\Build\AssetMap.json";
+            BundlePath = @"D:\huangwenmiaoPro\U3D_GameFramework\GameFramework\Build\StandaloneWindows\AssetBundles";
 
             return this;
         }

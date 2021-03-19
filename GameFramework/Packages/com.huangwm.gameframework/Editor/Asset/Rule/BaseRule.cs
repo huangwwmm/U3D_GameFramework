@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using UnityEditor;
-using GFEditor.Asset.AssetBundle.Build;
+using GFEditor.Asset.Build;
 
-namespace GFEditor.Asset.AssetBundle.Rule
+namespace GFEditor.Asset.Rule
 {
     public abstract class BaseRule : ScriptableObject
     {

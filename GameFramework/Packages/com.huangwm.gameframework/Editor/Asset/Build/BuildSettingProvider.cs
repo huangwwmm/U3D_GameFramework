@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace GFEditor.Asset.AssetBundle.Build
+namespace GFEditor.Asset.Build
 {
     public class BuildSettingProvider : SettingsProvider
     {
         private string m_FormatedBuildOutput;
         private string m_FormatedBundleBuildsPath;
         private string m_FormatedAssetKeyToAssetMapPath;
+        private string m_FormatedBundleMapPath;
 
         [SettingsProvider]
         public static SettingsProvider CreateSettingsProvider()
@@ -26,6 +27,7 @@ namespace GFEditor.Asset.AssetBundle.Build
             m_FormatedBuildOutput = BuildSetting.GetInstance().GetFormatedBuildOutput();
             m_FormatedBundleBuildsPath = BuildSetting.GetInstance().GetFormatedBundleBuildsPath();
             m_FormatedAssetKeyToAssetMapPath = BuildSetting.GetInstance().GetFormateAssetKeyToAssetMapPath();
+            m_FormatedBundleMapPath = BuildSetting.GetInstance().GetFormatedBundleMapPath();
         }
 
         public override void OnGUI(string searchContext)
@@ -82,6 +84,19 @@ namespace GFEditor.Asset.AssetBundle.Build
             {
                 EditorUtility.RevealInFinder(m_FormatedBundleBuildsPath);
                 EditorUtility.OpenWithDefaultApp(m_FormatedBundleBuildsPath);
+            }
+            EditorGUILayout.EndHorizontal();
+            if (EGLUtility.Folder(out setting.BundleMapPath
+                , "BundleMap路径"
+                , setting.BundleMapPath))
+            {
+                m_FormatedBundleMapPath = BuildSetting.GetInstance().GetFormatedBundleMapPath();
+            }
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("BundleMap路径", m_FormatedBundleMapPath);
+            if (GUILayout.Button("打开", GUILayout.Width(36)))
+            {
+                EditorUtility.RevealInFinder(m_FormatedBundleMapPath);
             }
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.HelpBox("开启这个选项可以加快打包速度\n"

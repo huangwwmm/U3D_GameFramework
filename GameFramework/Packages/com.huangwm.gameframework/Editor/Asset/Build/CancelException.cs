@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GFEditor.Asset.AssetBundle.Build
+namespace GFEditor.Asset.Build
 {
     public class CancelException : Exception
     {

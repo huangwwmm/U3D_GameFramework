@@ -1,10 +1,11 @@
 {
     "BuildOutput": "{Application.dataPath}/../Build/{BuildTarget}/AssetBundles",
     "BundleBuildsPath": "{Application.dataPath}/../Build/AssetBundleBuilds.json",
+    "BundleMapPath": "{Application.dataPath}/../Build/BundleMap.json",
     "AssetKeyToAssetMapPath": "{Application.dataPath}/../Build/AssetMap.json",
     "BuildAssetBundleOptions": 320,
     "UseCachedBuild": false,
     "ResetBundleName": false,
-    "BuildAssetBuild": false,
+    "BuildAssetBuild": true,
     "DeleteOutputBeforeBuild": false
 }

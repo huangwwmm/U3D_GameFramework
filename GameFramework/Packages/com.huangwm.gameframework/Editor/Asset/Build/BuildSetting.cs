@@ -5,7 +5,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace GFEditor.Asset.AssetBundle.Build
+namespace GFEditor.Asset.Build
 {
     [Serializable]
     public class BuildSetting : BaseProjectSetting
@@ -16,6 +16,7 @@ namespace GFEditor.Asset.AssetBundle.Build
 
         public string BuildOutput = string.Empty;
         public string BundleBuildsPath = string.Empty;
+        public string BundleMapPath = string.Empty;
         public string AssetKeyToAssetMapPath = string.Empty;
         public BuildAssetBundleOptions BuildAssetBundleOptions;
         public bool UseCachedBuild;
@@ -46,6 +47,11 @@ namespace GFEditor.Asset.AssetBundle.Build
         public string GetFormateAssetKeyToAssetMapPath()
         {
             return FormatPath(AssetKeyToAssetMapPath);
+        }
+
+        public string GetFormatedBundleMapPath()
+        {
+            return FormatPath(BundleMapPath);
         }
 
         protected string FormatPath(string path)

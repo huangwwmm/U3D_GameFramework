@@ -4,13 +4,13 @@ using System;
 using UnityEngine;
 using System.IO;
 using System.Text;
-using GFEditor.Asset.AssetBundle.Rule;
+using GFEditor.Asset.Rule;
 using GF.Common;
 using GF.Common.Debug;
 using System.Linq;
 using LitJson;
 
-namespace GFEditor.Asset.AssetBundle.Build
+namespace GFEditor.Asset.Build
 {
     public static class Builder
     {
@@ -93,7 +93,7 @@ namespace GFEditor.Asset.AssetBundle.Build
                     }
                 }
                 if (setting.ResetBundleName)
-                { 
+                {
                     ResetBundleName(assetToBundle);
                 }
                 return assetBundleBuilds;
@@ -222,10 +222,19 @@ namespace GFEditor.Asset.AssetBundle.Build
                 {
                     Directory.Delete(setting.GetFormatedBuildOutput(), true);
                 }
-
                 if (!Directory.Exists(setting.GetFormatedBuildOutput()))
                 {
                     Directory.CreateDirectory(setting.GetFormatedBuildOutput());
+                }
+
+                if (File.Exists(setting.BundleMapPath))
+                {
+                    File.Delete(setting.BundleMapPath);
+                }
+                string bundleMapDirectory = Path.GetDirectoryName(setting.BundleMapPath);
+                if (!Directory.Exists(bundleMapDirectory))
+                {
+                    Directory.CreateDirectory(bundleMapDirectory);
                 }
 
                 AssetBundleManifest assetBundleManifest;
@@ -244,6 +253,19 @@ namespace GFEditor.Asset.AssetBundle.Build
                         , setting.BuildAssetBundleOptions
                         , EditorUserBuildSettings.activeBuildTarget);
                 }
+
+                if (assetBundleManifest != null)
+                {
+                    Dictionary<string, string[]> bundleMap = new Dictionary<string, string[]>();
+                    for (int iBundle = 0; iBundle < assetBundleBuilds.Length; iBundle++)
+                    {
+                        string bundleName = assetBundleBuilds[iBundle].assetBundleName;
+                        bundleMap.Add(bundleName, assetBundleManifest.GetDirectDependencies(bundleName));
+                    }
+
+                    File.WriteAllText(setting.BundleMapPath, JsonMapper.ToJson(bundleMap));
+                }
+
                 return assetBundleManifest != null;
             }
             else
@@ -314,5 +336,6 @@ namespace GFEditor.Asset.AssetBundle.Build
             string json = JsonMapper.ToJson(context.GetAssetKeyToAsset());
             File.WriteAllText(path, json);
         }
+
     }
 }
