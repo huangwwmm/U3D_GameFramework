@@ -1,15 +1,13 @@
 ﻿using GF.Common.Collection;
 using GF.Common.Data;
 using GF.Common.Debug;
-using GF.Core;
 using GF.Core.Behaviour;
-using GF.Core.Event;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using UnityEngine;
-// 处于性能考虑，修改这个类型的时候需要修改这个文件中(SIGN:TLength)对应位置的代码
+// 出于性能考虑，修改这个类型的时候需要修改这个文件中(SIGN:TLength)对应位置的代码
 using TLength = System.Int32;
 
 namespace GF.Net.Tcp

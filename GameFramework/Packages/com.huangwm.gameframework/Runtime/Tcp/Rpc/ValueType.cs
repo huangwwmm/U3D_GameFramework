@@ -6,6 +6,7 @@
     /// </summary>
     public enum ValueType : byte
     {
+        Null,
         Byte,
         Short,
         Int,
