@@ -10,8 +10,9 @@ namespace GFEditor.Asset.Build
     {
         private string m_FormatedBuildOutput;
         private string m_FormatedBundleBuildsPath;
-        private string m_FormatedAssetKeyToAssetMapPath;
-        private string m_FormatedBundleMapPath;
+        private string m_FormatedAssetInfosPath;
+        private string m_FormatedAssetKeyEnumFilePath;
+        private string m_FormatedBundleInfoPath;
 
         [SettingsProvider]
         public static SettingsProvider CreateSettingsProvider()
@@ -26,8 +27,9 @@ namespace GFEditor.Asset.Build
         {
             m_FormatedBuildOutput = BuildSetting.GetInstance().GetFormatedBuildOutput();
             m_FormatedBundleBuildsPath = BuildSetting.GetInstance().GetFormatedBundleBuildsPath();
-            m_FormatedAssetKeyToAssetMapPath = BuildSetting.GetInstance().GetFormateAssetKeyToAssetMapPath();
-            m_FormatedBundleMapPath = BuildSetting.GetInstance().GetFormatedBundleMapPath();
+            m_FormatedAssetInfosPath = BuildSetting.GetInstance().GetFormateAssetInfosPath();
+            m_FormatedBundleInfoPath = BuildSetting.GetInstance().GetFormatedBundleInfoPath();
+            m_FormatedAssetKeyEnumFilePath = BuildSetting.GetInstance().GetFormateAssetKeyEnumFilePath();
         }
 
         public override void OnGUI(string searchContext)
@@ -86,17 +88,17 @@ namespace GFEditor.Asset.Build
                 EditorUtility.OpenWithDefaultApp(m_FormatedBundleBuildsPath);
             }
             EditorGUILayout.EndHorizontal();
-            if (EGLUtility.Folder(out setting.BundleMapPath
-                , "BundleMap路径"
-                , setting.BundleMapPath))
+            if (EGLUtility.Folder(out setting.BundleInfoPath
+                , "BundleInfo路径"
+                , setting.BundleInfoPath))
             {
-                m_FormatedBundleMapPath = BuildSetting.GetInstance().GetFormatedBundleMapPath();
+                m_FormatedBundleInfoPath = BuildSetting.GetInstance().GetFormatedBundleInfoPath();
             }
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("BundleMap路径", m_FormatedBundleMapPath);
+            EditorGUILayout.LabelField("BundleInfo路径", m_FormatedBundleInfoPath);
             if (GUILayout.Button("打开", GUILayout.Width(36)))
             {
-                EditorUtility.RevealInFinder(m_FormatedBundleMapPath);
+                EditorUtility.RevealInFinder(m_FormatedBundleInfoPath);
             }
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.HelpBox("开启这个选项可以加快打包速度\n"
@@ -114,17 +116,30 @@ namespace GFEditor.Asset.Build
             setting.ResetBundleName = EditorGUILayout.Toggle("设置BundleName", setting.ResetBundleName);
             EditorGUILayout.Space();
 
-            if (EGLUtility.Folder(out setting.AssetKeyToAssetMapPath
-                , "AssetMap路径"
-                , setting.AssetKeyToAssetMapPath))
+            if (EGLUtility.Folder(out setting.AssetInfosPath
+                , "AssetInfos路径"
+                , setting.AssetInfosPath))
             {
-                m_FormatedAssetKeyToAssetMapPath = BuildSetting.GetInstance().GetFormateAssetKeyToAssetMapPath();
+                m_FormatedAssetInfosPath = BuildSetting.GetInstance().GetFormateAssetInfosPath();
             }
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("AssetMap路径", m_FormatedAssetKeyToAssetMapPath);
+            EditorGUILayout.LabelField("AssetInfos路径", m_FormatedAssetInfosPath);
             if (GUILayout.Button("打开", GUILayout.Width(36)))
             {
-                EditorUtility.RevealInFinder(m_FormatedAssetKeyToAssetMapPath);
+                EditorUtility.RevealInFinder(m_FormatedAssetInfosPath);
+            }
+            EditorGUILayout.EndHorizontal();
+            if (EGLUtility.Folder(out setting.AssetKeyEnumFilePath
+                , "AssetKeyEnum路径"
+                , setting.AssetKeyEnumFilePath))
+            {
+                m_FormatedAssetKeyEnumFilePath = BuildSetting.GetInstance().GetFormateAssetKeyEnumFilePath();
+            }
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("AssetKeyEnum路径", m_FormatedAssetKeyEnumFilePath);
+            if (GUILayout.Button("打开", GUILayout.Width(36)))
+            {
+                EditorUtility.RevealInFinder(m_FormatedAssetKeyEnumFilePath);
             }
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.Space();

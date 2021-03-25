@@ -268,7 +268,9 @@ namespace GF.Common.Utility
                 sb.Append(argument.Replace("\\", "\\\\").Replace("'", "\\'"));
                 sb.Append('\'');
                 return sb.ToString();
-            }
+            }
+
+
             sb.Append('"');
             for (int i = 0; i < argument.Length; ++i)
             {

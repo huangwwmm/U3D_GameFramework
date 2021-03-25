@@ -16,8 +16,9 @@ namespace GFEditor.Asset.Build
 
         public string BuildOutput = string.Empty;
         public string BundleBuildsPath = string.Empty;
-        public string BundleMapPath = string.Empty;
-        public string AssetKeyToAssetMapPath = string.Empty;
+        public string BundleInfoPath = string.Empty;
+        public string AssetInfosPath = string.Empty;
+        public string AssetKeyEnumFilePath = string.Empty;
         public BuildAssetBundleOptions BuildAssetBundleOptions;
         public bool UseCachedBuild;
         public bool ResetBundleName;
@@ -44,14 +45,19 @@ namespace GFEditor.Asset.Build
             return FormatPath(BundleBuildsPath);
         }
 
-        public string GetFormateAssetKeyToAssetMapPath()
+        public string GetFormateAssetInfosPath()
         {
-            return FormatPath(AssetKeyToAssetMapPath);
+            return FormatPath(AssetInfosPath);
         }
 
-        public string GetFormatedBundleMapPath()
+        public string GetFormatedBundleInfoPath()
         {
-            return FormatPath(BundleMapPath);
+            return FormatPath(BundleInfoPath);
+        }
+
+        public string GetFormateAssetKeyEnumFilePath()
+        {
+            return FormatPath(AssetKeyEnumFilePath);
         }
 
         protected string FormatPath(string path)

@@ -1,5 +1,4 @@
-﻿using GF.Asset.Build;
-using GF.Common.Debug;
+﻿using GF.Common.Debug;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
@@ -12,7 +11,7 @@ namespace GFEditor.Asset.Build
         private Dictionary<string, List<string>> m_BundleToAssetPath = new Dictionary<string, List<string>>();
         private Dictionary<string, string> m_AssetPathToBundle = new Dictionary<string, string>();
         private Dictionary<string, HashSet<string>> m_AssetPathDependenciesToBundle;
-        private Dictionary<string, AssetInfo> m_AssetKeyToAsset = new Dictionary<string, AssetInfo>();
+        private Dictionary<string, AssetInfo> m_AssetKeyToAssetInfo = new Dictionary<string, AssetInfo>();
         
 
         public void SetAssetDependenciesToBundle(Dictionary<string, HashSet<string>> assetDependenciesToBundle)
@@ -35,13 +34,13 @@ namespace GFEditor.Asset.Build
             bundleName = bundleName.ToLower();
             if (!string.IsNullOrEmpty(assetKey))
             {
-                if (!m_AssetKeyToAsset.ContainsKey(assetKey))
+                if (!m_AssetKeyToAssetInfo.ContainsKey(assetKey))
                 {
-                    m_AssetKeyToAsset.Add(assetKey, new AssetInfo(assetPath, bundleName));
+                    m_AssetKeyToAssetInfo.Add(assetKey, new AssetInfo(assetPath, bundleName));
                 }
                 else
                 {
-                    AssetInfo alreadyIncludedAsset = m_AssetKeyToAsset[assetKey];
+                    AssetInfo alreadyIncludedAsset = m_AssetKeyToAssetInfo[assetKey];
                     throw new Exception($"Already included asset Key({assetKey}):Path({assetPath})\nIncluded asset:({alreadyIncludedAsset.AssetPath})");
                 }
             }
@@ -112,9 +111,9 @@ namespace GFEditor.Asset.Build
             return m_BundleToAssetPath;
         }
 
-        public Dictionary<string, AssetInfo> GetAssetKeyToAsset()
+        public Dictionary<string, AssetInfo> GetAssetKeyToAssetInfo()
         {
-            return m_AssetKeyToAsset;
+            return m_AssetKeyToAssetInfo;
         }
     }
 }

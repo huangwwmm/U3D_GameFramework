@@ -8,7 +8,7 @@ using System.Reflection;
 using UnityEngine;
 using GF.Core.Lua;
 using GF.Core.Entity;
-using GF.Asset.Address;
+using GF.Asset;
 
 namespace GF.Core
 {

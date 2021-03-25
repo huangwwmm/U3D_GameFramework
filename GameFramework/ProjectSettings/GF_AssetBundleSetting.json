@@ -1,11 +1,12 @@
 {
     "BuildOutput": "{Application.dataPath}/../Build/{BuildTarget}/AssetBundles",
     "BundleBuildsPath": "{Application.dataPath}/../Build/AssetBundleBuilds.json",
-    "BundleMapPath": "{Application.dataPath}/../Build/BundleMap.json",
-    "AssetKeyToAssetMapPath": "{Application.dataPath}/../Build/AssetMap.json",
+    "BundleInfoPath": "{Application.dataPath}/../Build/BundleInfos.json",
+    "AssetInfosPath": "{Application.dataPath}/../Build/AssetInfos.json",
+    "AssetKeyEnumFilePath": "{Application.dataPath}/../Packages/com.huangwm.gameframework/Runtime/Asset/AssetKey.cs",
     "BuildAssetBundleOptions": 320,
     "UseCachedBuild": false,
     "ResetBundleName": false,
     "BuildAssetBuild": true,
-    "DeleteOutputBeforeBuild": false
+    "DeleteOutputBeforeBuild": true
 }

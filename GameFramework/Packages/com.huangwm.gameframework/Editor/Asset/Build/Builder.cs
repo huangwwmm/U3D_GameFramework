@@ -9,6 +9,7 @@ using GF.Common;
 using GF.Common.Debug;
 using System.Linq;
 using LitJson;
+using GF.Asset;
 
 namespace GFEditor.Asset.Build
 {
@@ -23,12 +24,28 @@ namespace GFEditor.Asset.Build
         /// </summary>
         private const string RULE_ENABLE_SIGN = "E";
 
+        private static Context ms_Context;
+
         public static void Build()
         {
             bool success = false;
             try
             {
-                success = BuildAB(ExecuteAllRule());
+                ms_Context = new Context();
+                AssetBundleBuild[] assetBundleBuild = GenerateAssetBundle();
+                success = BuildAB(assetBundleBuild, out AssetBundleManifest assetBundleManifest);
+                if (success && BuildSetting.GetInstance().BuildAssetBuild)
+                {
+                    if (BuildSetting.GetInstance().BuildAssetBuild)
+                    {
+                        GenerateBundleInfosAndAssetInfosAndAssetKeyEnumFile(assetBundleManifest);
+                    }
+                    else
+                    {
+                        GenerateAssetMapAndAssetKeyEnumFile();
+                    }
+                }
+                
             }
             catch (Exception e)
             {
@@ -36,6 +53,7 @@ namespace GFEditor.Asset.Build
             }
             finally
             {
+                ms_Context = null;
                 EditorUtility.ClearProgressBar();
                 EditorUtility.DisplayDialog("AssetBundle"
                     , "Build AB " + (success ? "Success" : "Failed")
@@ -43,7 +61,7 @@ namespace GFEditor.Asset.Build
             }
         }
 
-        public static AssetBundleBuild[] ExecuteAllRule()
+        public static AssetBundleBuild[] GenerateAssetBundle()
         {
             BuildSetting setting = BuildSetting.GetInstance();
 
@@ -61,9 +79,6 @@ namespace GFEditor.Asset.Build
                 // 失败也不影响，不需要handle
             }
 
-            List<BaseRule> rules = CollectRule();
-            Context context = new Context();
-
             AssetBundleBuild[] assetBundleBuilds = null;
             if (setting.UseCachedBuild)
             {
@@ -72,7 +87,7 @@ namespace GFEditor.Asset.Build
                     string json = File.ReadAllText(setting.GetFormatedBundleBuildsPath());
                     if (!string.IsNullOrEmpty(json))
                     {
-                        assetBundleBuilds = LitJson.JsonMapper.ToObject<AssetBundleBuild[]>(json);
+                        assetBundleBuilds = JsonMapper.ToObject<AssetBundleBuild[]>(json);
                     }
                 }
                 catch (Exception)
@@ -99,20 +114,21 @@ namespace GFEditor.Asset.Build
                 return assetBundleBuilds;
             }
 
+            List<BaseRule> rules = CollectRule();
             try
             {
                 for (int iRule = 0; iRule < rules.Count; iRule++)
                 {
-                    rules[iRule].Execute(context);
+                    rules[iRule].Execute(ms_Context);
                 }
 
                 if (setting.ResetBundleName)
                 {
-                    ResetBundleName(context.GetAssetToBundle());
+                    ResetBundleName(ms_Context.GetAssetToBundle());
                 }
                 else
                 {
-                    assetBundleBuilds = context.GenerateAssetBundleBuild();
+                    assetBundleBuilds = ms_Context.GenerateAssetBundleBuild();
                 }
             }
             catch (Exception e)
@@ -136,8 +152,6 @@ namespace GFEditor.Asset.Build
             {
                 // 写失败了也不影响，不需要handle
             }
-
-            SaveAssetKeyToBundleMap(context);
 
             return assetBundleBuilds;
         }
@@ -212,7 +226,7 @@ namespace GFEditor.Asset.Build
                 , $"Modify bundleName count ({modifyAssetCount}) elapsed {MDebug.FormatMilliseconds(elapsedMS)}");
         }
 
-        public static bool BuildAB(AssetBundleBuild[] assetBundleBuilds)
+        public static bool BuildAB(AssetBundleBuild[] assetBundleBuilds, out AssetBundleManifest assetBundleManifest)
         {
             BuildSetting setting = BuildSetting.GetInstance();
             if (setting.BuildAssetBuild)
@@ -227,17 +241,16 @@ namespace GFEditor.Asset.Build
                     Directory.CreateDirectory(setting.GetFormatedBuildOutput());
                 }
 
-                if (File.Exists(setting.BundleMapPath))
+                if (File.Exists(setting.BundleInfoPath))
                 {
-                    File.Delete(setting.BundleMapPath);
+                    File.Delete(setting.BundleInfoPath);
                 }
-                string bundleMapDirectory = Path.GetDirectoryName(setting.BundleMapPath);
+                string bundleMapDirectory = Path.GetDirectoryName(setting.BundleInfoPath);
                 if (!Directory.Exists(bundleMapDirectory))
                 {
                     Directory.CreateDirectory(bundleMapDirectory);
                 }
 
-                AssetBundleManifest assetBundleManifest;
                 if (setting.ResetBundleName)
                 {
                     EditorUtility.DisplayProgressBar("Builder", "BuildPipeline.BuildAssetBundles", 0);
@@ -254,22 +267,11 @@ namespace GFEditor.Asset.Build
                         , EditorUserBuildSettings.activeBuildTarget);
                 }
 
-                if (assetBundleManifest != null)
-                {
-                    Dictionary<string, string[]> bundleMap = new Dictionary<string, string[]>();
-                    for (int iBundle = 0; iBundle < assetBundleBuilds.Length; iBundle++)
-                    {
-                        string bundleName = assetBundleBuilds[iBundle].assetBundleName;
-                        bundleMap.Add(bundleName, assetBundleManifest.GetDirectDependencies(bundleName));
-                    }
-
-                    File.WriteAllText(setting.BundleMapPath, JsonMapper.ToJson(bundleMap));
-                }
-
                 return assetBundleManifest != null;
             }
             else
             {
+                assetBundleManifest = null;
                 return true;
             }
         }
@@ -319,23 +321,106 @@ namespace GFEditor.Asset.Build
             return rules;
         }
 
-        /// <summary>
-        /// 保存AssetKeyToAsset映射Json文件
-        /// </summary>
-        /// <param name="context"></param>
-        public static void SaveAssetKeyToBundleMap(Context context)
+        private static GF.Asset.AssetInfo[] GenerateAssetMapAndAssetKeyEnumFile(Dictionary<string, int> bundleNameToIndex = null)
         {
-            BuildSetting setting = BuildSetting.GetInstance();
-            string path = setting.GetFormateAssetKeyToAssetMapPath();
-
-            if (File.Exists(path))
+            StringBuilder assetKeyEnumBuilder = new StringBuilder();
+            assetKeyEnumBuilder.Append("namespace GF.Asset\n");
+            assetKeyEnumBuilder.Append("{\n");
+            assetKeyEnumBuilder.Append("\tpublic enum AssetKey\n");
+            assetKeyEnumBuilder.Append("\t{\n");
+            Dictionary<string, AssetInfo> assetKeyToAssetInfo = ms_Context.GetAssetKeyToAssetInfo();
+            GF.Asset.AssetInfo[] assetInfos = new GF.Asset.AssetInfo[assetKeyToAssetInfo.Count];
+            int iAsset = 0;
+            foreach (KeyValuePair<string, AssetInfo> kv in assetKeyToAssetInfo)
             {
-                File.Delete(path);
+                assetInfos[iAsset++] = new GF.Asset.AssetInfo(kv.Value.AssetPath
+                    , bundleNameToIndex != null ? bundleNameToIndex[kv.Value.BundleName] : 0);
+
+                assetKeyEnumBuilder.Append($"\t\t{GF.Common.Utility.StringUtility.FormatToVariableName(kv.Key)},\n");
             }
 
-            string json = JsonMapper.ToJson(context.GetAssetKeyToAsset());
-            File.WriteAllText(path, json);
+            assetKeyEnumBuilder.Append("\t}\n")
+                .Append("}");
+
+            File.WriteAllText(BuildSetting.GetInstance().GetFormateAssetInfosPath(), JsonMapper.ToJson(assetInfos));
+            File.WriteAllText(BuildSetting.GetInstance().GetFormateAssetKeyEnumFilePath(), assetKeyEnumBuilder.ToString());
+
+            return assetInfos;
         }
 
+        private static void GenerateBundleInfosAndAssetInfosAndAssetKeyEnumFile(AssetBundleManifest assetBundleManifest)
+        {
+            string[] assetBundles = assetBundleManifest.GetAllAssetBundles();
+            BundleInfo[] bundleInfos = new BundleInfo[assetBundles.Length];
+            List<int> bundleDependenceIndexsCache = new List<int>();
+            HashSet<int> alreadyAddedBundleDependencesCache = new HashSet<int>();
+            Dictionary<string, string[]> bundleDependencesMap = new Dictionary<string, string[]>();
+            Dictionary<string, int> bundleNameToIndex = new Dictionary<string, int>(assetBundles.Length);
+
+            for (int assetBundlesIndex = 0; assetBundlesIndex < assetBundles.Length; assetBundlesIndex++)
+            {
+                bundleNameToIndex.Add(assetBundles[assetBundlesIndex], assetBundlesIndex);
+            }
+
+            for (int iBundle = 0; iBundle < assetBundles.Length; iBundle++)
+            {
+                string bundleName = assetBundles[iBundle];
+                bundleDependencesMap.Add(bundleName, assetBundleManifest.GetDirectDependencies(bundleName));
+            }
+
+            for (int iBundle = 0; iBundle < assetBundles.Length; iBundle++)
+            {
+                alreadyAddedBundleDependencesCache.Clear();
+                bundleDependenceIndexsCache.Clear();
+
+                string bundleName = assetBundles[iBundle];
+                AddBundleDependence(bundleName, bundleDependencesMap, bundleNameToIndex, bundleDependenceIndexsCache, alreadyAddedBundleDependencesCache);
+                bundleDependenceIndexsCache.RemoveAt(bundleDependenceIndexsCache.Count - 1);
+                bundleInfos[iBundle].BundleName = assetBundles[iBundle];
+                bundleInfos[iBundle].DependencyBundleIndexs = bundleDependenceIndexsCache.ToArray();
+            }
+
+            GF.Asset.AssetInfo[] assetInfos = GenerateAssetMapAndAssetKeyEnumFile(bundleNameToIndex);
+            Dictionary<int, List<int>> bundleToAssets = new Dictionary<int, List<int>>(assetBundles.Length);
+            for (int iAsset = 0; iAsset < assetInfos.Length; iAsset++)
+            {
+                int bundleIndex = assetInfos[iAsset].BundleIndex;
+                if (!bundleToAssets.TryGetValue(bundleIndex, out List<int> assets))
+                {
+                    assets = new List<int>();
+                    bundleToAssets[bundleIndex] = assets;
+                }
+
+                assets.Add(iAsset);
+            }
+            foreach (KeyValuePair<int, List<int>> kv in bundleToAssets)
+            {
+                bundleInfos[kv.Key].DirectyReferenceAssets = kv.Value.ToArray<int>();
+            }
+
+            string formatedBundleMapPath = BuildSetting.GetInstance().GetFormatedBundleInfoPath();
+            string bundleMapJson = JsonMapper.ToJson(bundleInfos);
+            File.WriteAllText(formatedBundleMapPath, bundleMapJson);
+        }
+
+        private static void AddBundleDependence(string bundleName
+            , Dictionary<string, string[]> bundleDependencesMap
+            , Dictionary<string, int> bundleNameToIndex
+            , List<int> bundleDependenceIndex
+            , HashSet<int> alreadyAddedBundleDependences)
+        {
+            string[] dependences = bundleDependencesMap[bundleName];
+            for (int bundleIndex = 0; bundleIndex < dependences.Length; bundleIndex++)
+            {
+                AddBundleDependence(dependences[bundleIndex], bundleDependencesMap, bundleNameToIndex, bundleDependenceIndex, alreadyAddedBundleDependences);
+            }
+
+            int currentBundelIndex = bundleNameToIndex[bundleName];
+
+            if (alreadyAddedBundleDependences.Add(currentBundelIndex))
+            {
+                bundleDependenceIndex.Add(currentBundelIndex);
+            }
+        }
     }
 }
