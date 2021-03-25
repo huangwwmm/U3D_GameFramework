@@ -105,12 +105,13 @@ namespace GF.Asset
             }
 
             AssetAction assetAction = m_AssetHandlers[assetIndex].AddReference(callback);
+            int bundleIndex = m_AssetInfos[assetIndex].BundleIndex;
+            int[] dependencyBundleIndexs = m_BundleInfos[bundleIndex].DependencyBundleIndexs;
             switch (assetAction)
             {
                 case AssetAction.RequestLoadBundle:
-                    int bundleIndex = m_AssetInfos[assetIndex].BundleIndex;
-                    int[] dependencyBundleIndexs = m_BundleInfos[bundleIndex].DependencyBundleIndexs;
-                    m_AssetHandlers[assetIndex].AddNeedLoadBundle(dependencyBundleIndexs.Length + 1);
+                    
+                    m_AssetHandlers[assetIndex].AddNeedLoadBundlesCount(dependencyBundleIndexs.Length + 1);
                     for (int iBundle = 0; iBundle < dependencyBundleIndexs.Length; iBundle++)
                     {
                         int iterDependenceBundleIndex = dependencyBundleIndexs[iBundle];
@@ -122,6 +123,15 @@ namespace GF.Asset
                 case AssetAction.Unload:
                 case AssetAction.LoadedCallback:
                     AddAssetActionRequest(assetIndex, assetAction);
+                    break;
+                case AssetAction.Reload:
+                    m_BundleHandlers[bundleIndex].AddReference();
+                    for (int iBundle = 0; iBundle < dependencyBundleIndexs.Length; iBundle++)
+                    {
+                        m_BundleHandlers[dependencyBundleIndexs[iBundle]].AddReference();
+                    }
+                    
+                    AddAssetActionRequest(assetIndex, AssetAction.LoadedCallback);
                     break;
                 default:
                     MDebug.Assert(false, LOG_TAG, "Asset Not Support AssetAction: " + assetAction);
@@ -531,7 +541,7 @@ namespace GF.Asset
                 }
             }
 
-            public void AddNeedLoadBundle(int needLoadBundleCount = 1)
+            public void AddNeedLoadBundlesCount(int needLoadBundleCount = 1)
             {
                 m_RemainLoadBundleCount += 1;
             }
@@ -561,7 +571,7 @@ namespace GF.Asset
                     case AssetState.NeedUnload:
                         MDebug.Assert(m_Asset != null, LOG_TAG, "m_Asset != null");
                         m_AssetState = AssetState.Loaded;
-                        return AssetAction.LoadedCallback;
+                        return AssetAction.Reload;
                     default:
                         MDebug.Assert(false, LOG_TAG, "Asset Not Support AssetState");
                         return AssetAction.Null;
@@ -726,6 +736,7 @@ namespace GF.Asset
             Null,
             Load,
             Unload,
+            Reload,
             RequestLoadBundle,
             LoadedCallback,
         }
