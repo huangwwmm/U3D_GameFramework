@@ -60,7 +60,7 @@ namespace GF.Asset
             {
                 MDebug.LogError(LOG_TAG, $"解析BundleMap:({initializeData.BundleMapFile})失败。\nJson:({bundleInfosJson})\n\n{e.ToString()}");
             }
-            
+
             yield return null;
 
             //加载AssetMap
@@ -98,13 +98,16 @@ namespace GF.Asset
 
             int assetIndex = (int)assetKey;
 
-            if (m_AssetHandlers[assetIndex] == null)
+            AssetHandler assetHandler = m_AssetHandlers[assetIndex];
+            if (assetHandler == null)
             {
-                m_AssetHandlers[assetIndex] = m_AssetHandlerPool.Alloc();
-                m_AssetHandlers[assetIndex].SetAssetKey(assetKey);
+                assetHandler = m_AssetHandlerPool.Alloc();
+                assetHandler.SetAssetKey(assetKey);
+                m_AssetHandlers[assetIndex] = assetHandler;
             }
 
-            AssetAction assetAction = m_AssetHandlers[assetIndex].AddReference(callback);
+            AssetAction assetAction = assetHandler.AddReference(callback);
+
             switch (assetAction)
             {
                 case AssetAction.RequestLoadBundle:
@@ -112,55 +115,25 @@ namespace GF.Asset
                     int[] dependencyBundleIndexs = m_BundleInfos[bundleIndex].DependencyBundleIndexs;
                     for (int iBundle = 0; iBundle < dependencyBundleIndexs.Length; iBundle++)
                     {
-                        int iterDependenceBundleIndex = dependencyBundleIndexs[iBundle];
-                        TryLoadBundleForLoadAsset(iterDependenceBundleIndex, assetIndex);
+                        int iterDependencyBundleIndex = dependencyBundleIndexs[iBundle];
+                        LoadBundleForLoadAsset(iterDependencyBundleIndex, assetIndex);
                     }
-                    TryLoadBundleForLoadAsset(bundleIndex, assetIndex);
+                    LoadBundleForLoadAsset(bundleIndex, assetIndex);
+                    if (assetHandler.GetRemainLoadBundleCount() == 0)
+                    {
+                        AddAssetActionRequest(assetIndex, AssetAction.Load);
+                    }
                     break;
                 case AssetAction.Load:
-                case AssetAction.Unload:
                 case AssetAction.LoadedCallback:
                     AddAssetActionRequest(assetIndex, assetAction);
+                    break;
+                case AssetAction.Null:
+                    // Nothing To Do
                     break;
                 default:
                     MDebug.Assert(false, LOG_TAG, "Asset Not Support AssetAction: " + assetAction);
                     break;
-            }
-        }
-
-        public void ReleaseAssetAsync(UnityEngine.Object asset)
-        {
-            if (!asset)
-            {
-                return;
-            }
-
-            if (m_AssetToAssetHandlerMap.TryGetValue(asset, out AssetHandler assetHandler))
-            {
-                assetHandler.RemoveReference();
-
-                int bundleIndex = m_AssetInfos[assetHandler.GetAssetIndex()].BundleIndex;
-                TryReleaseBundleForReleaseAsset(bundleIndex);
-            }
-        }
-
-        private void TryReleaseBundleForReleaseAsset(int bundleIndex)
-        {
-            BundleAction bundleAction = m_BundleHandlers[bundleIndex].RemoveReference();
-
-            if (bundleAction == BundleAction.Unload)
-            {
-                m_BundleActionRequests.Enqueue(new BundleActionRequest(bundleIndex, bundleAction));
-            }
-
-            int[] dependenceBundleIndex = m_BundleInfos[bundleIndex].DependencyBundleIndexs;
-            for (int iBundle = dependenceBundleIndex.Length - 1; iBundle > -1; iBundle--)
-            {
-                BundleAction dependenceBundleAction = m_BundleHandlers[dependenceBundleIndex[iBundle]].RemoveReference();
-                if (bundleAction == BundleAction.Unload)
-                {
-                    m_BundleActionRequests.Enqueue(new BundleActionRequest(bundleIndex, bundleAction));
-                }
             }
         }
 
@@ -196,7 +169,7 @@ namespace GF.Asset
             }
         }
 
-        private BundleHandler TryLoadBundleForLoadAsset(int bundleIndex, int assetIndex)
+        private void LoadBundleForLoadAsset(int bundleIndex, int assetIndex)
         {
             BundleHandler bundleHandler = m_BundleHandlers[bundleIndex];
             if (bundleHandler == null)
@@ -206,13 +179,9 @@ namespace GF.Asset
                 m_BundleHandlers[bundleIndex] = bundleHandler;
             }
 
-            
             BundleAction bundleAction = bundleHandler.AddReference();
-
             if (bundleAction == BundleAction.Load)
             {
-                bundleHandler.AddLoadedCallback(m_AssetHandlers[assetIndex].OnBundleLoaded);
-                m_AssetHandlers[assetIndex].AddNeedLoadBundle();
                 m_BundleActionRequests.Enqueue(new BundleActionRequest(bundleIndex, bundleAction));
 
                 MDebug.LogVerbose(LOG_TAG, $"Add load bundle action. Bundle:({m_BundleInfos[bundleIndex].BundleName}) Asset:({(AssetKey)assetIndex})");
@@ -226,7 +195,7 @@ namespace GF.Asset
                 MDebug.Assert(false, "AsestBundle", "Not support BundleAction: " + bundleAction);
             }
 
-            return bundleHandler;
+            bundleHandler.TryAddDependencyAsset(m_AssetHandlers[assetIndex]);
         }
 
         private void AddAssetActionRequest(int assetIndex, AssetAction assetAction)
@@ -247,6 +216,11 @@ namespace GF.Asset
         private void LoadAssetAsync(int assetIndex, Action<AsyncOperation> callback)
         {
             m_BundleHandlers[m_AssetInfos[assetIndex].BundleIndex].LoadAssetAsync(m_AssetInfos[assetIndex].AssetPath, callback);
+        }
+
+        private void RemoveAssetDependencyBundleReference(int assetIndex)
+        {
+            // TODO
         }
 
         private class BundleHandler : IObjectPoolItem
@@ -356,9 +330,13 @@ namespace GF.Asset
                 }
             }
 
-            public void AddLoadedCallback(Action<string> onBundleLoaded)
+            public void TryAddDependencyAsset(AssetHandler assetHandler)
             {
-                m_OnBundleLoaded += onBundleLoaded;
+                if (m_BundleState != BundleState.Loaded)
+                {
+                    m_OnBundleLoaded += assetHandler.OnBundleLoaded;
+                    assetHandler.AddNeedLoadBundle();
+                }
             }
 
             public void LoadAssetAsync(string assetPath, Action<AsyncOperation> callback)
@@ -410,8 +388,7 @@ namespace GF.Asset
             }
 
             public void OnAlloc()
-            {    
-                //Nothing To Do
+            {
             }
 
             public void OnRelease()
@@ -421,8 +398,6 @@ namespace GF.Asset
                 m_BundleState = BundleState.NotLoad;
                 m_ReferenceCount = 0;
                 m_OnBundleLoaded = default;
-
-                //TODO 释放相关资源
             }
 
             private enum BundleState
@@ -497,7 +472,6 @@ namespace GF.Asset
                 m_OnAssetLoaded = default;
             }
 
-
             public void SetAssetKey(AssetKey assetKey)
             {
                 m_AssetKey = assetKey;
@@ -509,7 +483,6 @@ namespace GF.Asset
                 MDebug.Assert(m_RemainLoadBundleCount >= 0, LOG_TAG, "m_RemainLoadBundleCount >= 0");
                 if (m_RemainLoadBundleCount == 0)
                 {
-                    m_AssetState = AssetState.WaitLoad;
                     ms_AssetManager.AddAssetActionRequest(m_AssetKey, AssetAction.Load);
                 }
             }
@@ -517,6 +490,11 @@ namespace GF.Asset
             public void AddNeedLoadBundle()
             {
                 m_RemainLoadBundleCount++;
+            }
+
+            public int GetRemainLoadBundleCount()
+            {
+                return m_RemainLoadBundleCount;
             }
 
             public AssetState GetAssetState()
@@ -537,6 +515,7 @@ namespace GF.Asset
                         MDebug.Assert(m_Asset != null, LOG_TAG, "m_Asset != null");
                         return AssetAction.LoadedCallback;
                     case AssetState.NotLoad:
+                        m_AssetState = AssetState.WaitLoad;
                         return AssetAction.RequestLoadBundle;
                     case AssetState.WaitLoad:
                     case AssetState.Loading:
@@ -639,14 +618,14 @@ namespace GF.Asset
                     return false;
                 }
 
-                Resources.UnloadAsset(m_Asset);
+                MDebug.Assert(m_ReferenceCount == 0 && m_Asset && m_OnAssetLoaded == null
+                    , LOG_TAG
+                    , "m_ReferenceCount == 0 && m_Asset && m_OnAssetLoaded == null");
 
-                m_AssetState = AssetState.NotLoad;
-                m_OnAssetLoaded = null;
                 m_Asset = null;
-                m_ReferenceCount = 0;
-                m_RemainLoadBundleCount = 0;
+                m_AssetState = AssetState.NotLoad;
 
+                ms_AssetManager.RemoveAssetDependencyBundleReference((int)m_AssetKey);
                 return true;
             }
 
@@ -664,22 +643,18 @@ namespace GF.Asset
                 }
             }
 
-
-
             public void OnAlloc()
             {
-                //TODO
             }
 
             public void OnRelease()
             {
-                //TODO
                 m_ReferenceCount = 0;
                 m_RemainLoadBundleCount = 0;
 
                 m_AssetState = AssetState.NotLoad;
                 m_Asset = null;
-                m_OnAssetLoaded = default;
+                m_OnAssetLoaded = null;
             }
         }
 

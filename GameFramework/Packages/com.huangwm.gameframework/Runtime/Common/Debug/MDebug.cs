@@ -183,39 +183,27 @@ namespace GF.Common.Debug
         }
 
         [System.Diagnostics.Conditional(LOG_ASSERT_CONDITIONAL)]
-        public static void Assert(bool condition, string message, bool displayDialog = false)
+        public static void Assert(bool condition, string message, bool displayDialog = true)
         {
             if (!condition)
             {
                 UnityEngine.Debug.Assert(condition, message);
-#if UNITY_EDITOR
-                if (displayDialog)
-                {
-                    EditorUtility.DisplayDialog("Assert Failed", message, "OK");
-                }
-                UnityEngine.Debug.Break();
-#endif
+                InternalAssert(message, displayDialog);
             }
         }
 
         [System.Diagnostics.Conditional(LOG_ASSERT_CONDITIONAL)]
-        public static void Assert(bool condition, string message, Object context, bool displayDialog = false)
+        public static void Assert(bool condition, string message, Object context, bool displayDialog = true)
         {
             if (!condition)
             {
                 UnityEngine.Debug.Assert(condition, message, context);
-#if UNITY_EDITOR
-                if (displayDialog)
-                {
-                    EditorUtility.DisplayDialog("Assert Failed", message, "OK");
-                }
-                UnityEngine.Debug.Break();
-#endif
+                InternalAssert(message, displayDialog);
             }
         }
 
         [System.Diagnostics.Conditional(LOG_ASSERT_CONDITIONAL)]
-        public static void Assert(bool condition, string tag, string message, bool displayDialog = false)
+        public static void Assert(bool condition, string tag, string message, bool displayDialog = true)
         {
             if (condition)
             {
@@ -226,7 +214,7 @@ namespace GF.Common.Debug
         }
 
         [System.Diagnostics.Conditional(LOG_ASSERT_CONDITIONAL)]
-        public static void Assert(bool condition, string tag, string message, Object context, bool displayDialog = false)
+        public static void Assert(bool condition, string tag, string message, Object context, bool displayDialog = true)
         {
             if (condition)
             {
@@ -315,5 +303,17 @@ namespace GF.Common.Debug
             return $"({h}h {m}m {s}s)";
         }
         #endregion
+
+        [System.Diagnostics.Conditional(LOG_ASSERT_CONDITIONAL)]
+        private static void InternalAssert(string message, bool displayDialog)
+        {
+#if UNITY_EDITOR
+            if (displayDialog)
+            {
+                EditorUtility.DisplayDialog("Assert Failed", message, "OK");
+            }
+#endif
+            UnityEngine.Debug.Break();
+        }
     }
 }

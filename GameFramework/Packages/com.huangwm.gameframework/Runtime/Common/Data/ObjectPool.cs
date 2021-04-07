@@ -39,6 +39,10 @@ namespace GF.Common.Data
         , IObjectPoolItem
         , new()
     {
+        /// <summary>
+        /// 魔法数字
+        /// 为了防止有人从池里拿了Object之后忘记还回来的会做定期检测
+        /// </summary>
         private const long DEFAULT_MEMORY_LEAK_MILLISECONDS = 1000 * 60 * 5;
 
         /// <summary>
