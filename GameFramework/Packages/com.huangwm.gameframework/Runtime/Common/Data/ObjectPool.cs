@@ -152,7 +152,7 @@ namespace GF.Common.Data
             m_LastUsingTime = MDebug.GetMillisecondsSinceStartup();
 
 #if GF_DEBUG
-            MDebug.Assert(element != null, "Pool", $"element != null");
+            MDebug.Assert(element != null, "Pool", $"element == null");
 
             bool removedFromUsing = false;
             for (int iObject = 0; iObject < m_Using.Count; iObject++)

@@ -94,6 +94,9 @@ namespace GF.Core
         /// </summary>
         public string BundlePath;
 
+		// TODO 是否可以优化,临时设置Bool，编辑器模式下，直接加载资源，运行时，加载AssetBundle资源
+		public bool UseAssetBundle;
+
         #endregion
 
         public KernelInitializeData RestoreToDefault()
@@ -111,7 +114,14 @@ namespace GF.Core
             LoadLuaByAssetDatabaseWhenEditor = false;
 #endif
 
-            LuaScriptingDefine = new HashSet<string>();
+
+#if UNITY_EDITOR
+			UseAssetBundle = false;
+#else
+			UseAssetBundle = true;
+#endif
+
+			LuaScriptingDefine = new HashSet<string>();
 
 #if UNITY_EDITOR
             LuaScriptingDefine.Add("UNITY_EDITOR");
@@ -120,12 +130,12 @@ namespace GF.Core
 #if GF_DEBUG
             LuaScriptingDefine.Add("GF_DEBUG");
 #endif
-
-            BundleMapFile = @"D:\huangwenmiaoPro\U3D_GameFramework\GameFramework\Build\BundleInfos.json";
-            BundlePath = @"D:\huangwenmiaoPro\U3D_GameFramework\GameFramework\Build\StandaloneWindows\AssetBundles";
-            AssetInfosFile = @"D:\huangwenmiaoPro\U3D_GameFramework\GameFramework\Build\AssetInfos.json";
-
-            
+            // HACK just testAssetBundle;
+			//todo,Editor,runtime  两种方式获取，先写死测试 默认Editor
+			//todo 根据不同平台，设置不同路径例如Windows/AssetBundles, Android/AssetBundles
+            BundleMapFile = UnityEngine.Application.dataPath + "/../Build/BundleInfos.json";
+            BundlePath = UnityEngine.Application.dataPath + "/../Build/StandaloneWindows64/AssetBundles";
+            AssetInfosFile = UnityEngine.Application.dataPath+"/../Build/AssetInfos.json";
 
             return this;
         }

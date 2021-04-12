@@ -12,8 +12,13 @@ namespace Test.Game
 {
     public class TEST_Game : MonoBehaviour
     {
+		private GameObject obj;
+      
+
         private IEnumerator Start()
         {
+           
+
             DontDestroyOnLoad(this);
 
             KernelInitializeData kernelInitializeData = new KernelInitializeData().RestoreToDefault();
@@ -73,9 +78,32 @@ namespace Test.Game
             client.Send(System.Text.Encoding.UTF8.GetBytes("gwa3tr3"));
             yield return new WaitForSeconds(2.0f);
             client.Disconnect();
-        }
 
-        private void OnReceivedPackage(ArrayPool<byte>.Node obj)
+
+
+		}
+
+		private void Update()
+		{
+			if (Input.GetKeyDown(KeyCode.G))
+			{
+				Debug.Log("Instantiate GameObject send!");
+				Kernel.AssetManager.InstantiateGameObjectAsync(GF.Asset.AssetKey.New_Folder_Cube_prefab, (GF.Asset.AssetKey key, UnityEngine.Object tmpObj) =>
+				{
+					obj = tmpObj as GameObject;
+					Debug.Log("Instantiate GameObject Success!");
+				},new GF.Asset.InstantiateBasicData() { IsWorldSpace = false,Parent  = this.transform,Position = Vector3.one});
+
+			}
+
+
+			if (Input.GetKeyDown(KeyCode.D))
+			{
+				Kernel.AssetManager.ReleaseGameObjectAsync(obj);
+			}
+		}
+
+		private void OnReceivedPackage(ArrayPool<byte>.Node obj)
         {
             MDebug.Log("T", "OnReceivedPackage: "
                 + System.Text.Encoding.UTF8.GetString(obj.GetBuffer(), obj.GetOffset(), obj.GetSize()));
@@ -100,5 +128,10 @@ namespace Test.Game
         {
             Start = GF.Core.Event.EventName.GFEnd,
         }
+
+
     }
+
+
+    
 }

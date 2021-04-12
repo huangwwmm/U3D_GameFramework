@@ -339,6 +339,7 @@ namespace GF.Net.Tcp
             if (e.SocketError == SocketError.Success)
             {
                 MDebug.Log(LOG_TAG, $"Client({GetName()}) 连接成功");
+				
 
                 m_BufferPool = new ArrayPool<byte>(1024 * 512);
                 lock (m_TcpConnectActionLock)

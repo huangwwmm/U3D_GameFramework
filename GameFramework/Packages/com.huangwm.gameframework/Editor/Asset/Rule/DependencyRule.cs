@@ -26,7 +26,7 @@ namespace GFEditor.Asset.Rule
             {
                 string asset = kv.Key;
                 if (kv.Value.Count < 2
-                    || context.IncludedAsset(asset))
+                    || context.IncludedAsset (asset))
                 {
                     continue;
                 }

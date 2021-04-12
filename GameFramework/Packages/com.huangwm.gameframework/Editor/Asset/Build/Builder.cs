@@ -33,21 +33,19 @@ namespace GFEditor.Asset.Build
             {
                 ms_Context = new Context();
                 AssetBundleBuild[] assetBundleBuild = GenerateAssetBundle();
-                success = BuildAB(assetBundleBuild, out AssetBundleManifest assetBundleManifest);
-                if (success && BuildSetting.GetInstance().BuildAssetBuild)
-                {
-                    if (BuildSetting.GetInstance().BuildAssetBuild)
-                    {
-                        GenerateBundleInfosAndAssetInfosAndAssetKeyEnumFile(assetBundleManifest);
-                    }
-                    else
-                    {
-                        GenerateAssetMapAndAssetKeyEnumFile();
-                    }
-                }
-                
-            }
-            catch (Exception e)
+				success = BuildAB(assetBundleBuild, out AssetBundleManifest assetBundleManifest);
+
+				if (success)
+				{
+					GenerateAssetMapAndAssetKeyEnumFile();
+				}
+
+				if (success && BuildSetting.GetInstance().BuildAssetBuild)
+				{
+					GenerateBundleInfosAndAssetInfosAndAssetKeyEnumFile(assetBundleManifest);
+				}
+			}
+			catch (Exception e)
             {
                 MDebug.LogError("AssetBundle", "Build AssetBundle Exception:\n" + e.ToString());
             }
@@ -80,6 +78,7 @@ namespace GFEditor.Asset.Build
             }
 
             AssetBundleBuild[] assetBundleBuilds = null;
+            //启用根据AssetBundleBuilds.json文件，构建AssetBundleBuild数组，加速打包，适用于没有打包配置更改的情景
             if (setting.UseCachedBuild)
             {
                 try
@@ -107,6 +106,7 @@ namespace GFEditor.Asset.Build
                         assetToBundle[iterBundle.assetNames[iAsset]] = iterBundle.assetBundleName;
                     }
                 }
+                //启用设置AssetImporter更改文件BundleName和Varient
                 if (setting.ResetBundleName)
                 {
                     ResetBundleName(assetToBundle);
@@ -211,6 +211,7 @@ namespace GFEditor.Asset.Build
                     EditorUtility.SetDirty(iterAssetImporter);
                 }
 
+                //1000间隔,执行一次IO操作，提高性能
                 if (iAsset % 1000 == 0)
                 {
                     AssetDatabase.SaveAssets();
@@ -240,12 +241,11 @@ namespace GFEditor.Asset.Build
                 {
                     Directory.CreateDirectory(setting.GetFormatedBuildOutput());
                 }
-
-                if (File.Exists(setting.BundleInfoPath))
+                if (File.Exists(setting.GetFormatedBundleInfoPath()))
                 {
-                    File.Delete(setting.BundleInfoPath);
+                    File.Delete(setting.GetFormatedBundleInfoPath());
                 }
-                string bundleMapDirectory = Path.GetDirectoryName(setting.BundleInfoPath);
+                string bundleMapDirectory = Path.GetDirectoryName(setting.GetFormatedBundleInfoPath());
                 if (!Directory.Exists(bundleMapDirectory))
                 {
                     Directory.CreateDirectory(bundleMapDirectory);

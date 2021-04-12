@@ -99,6 +99,7 @@ namespace GFEditor.Asset.Build
             if (GUILayout.Button("打开", GUILayout.Width(36)))
             {
                 EditorUtility.RevealInFinder(m_FormatedBundleInfoPath);
+                EditorUtility.OpenWithDefaultApp(m_FormatedBundleInfoPath);
             }
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.HelpBox("开启这个选项可以加快打包速度\n"
@@ -127,6 +128,7 @@ namespace GFEditor.Asset.Build
             if (GUILayout.Button("打开", GUILayout.Width(36)))
             {
                 EditorUtility.RevealInFinder(m_FormatedAssetInfosPath);
+                EditorUtility.OpenWithDefaultApp(m_FormatedAssetInfosPath);
             }
             EditorGUILayout.EndHorizontal();
             if (EGLUtility.Folder(out setting.AssetKeyEnumFilePath

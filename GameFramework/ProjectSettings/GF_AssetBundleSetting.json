@@ -6,7 +6,7 @@
     "AssetKeyEnumFilePath": "{Application.dataPath}/../Packages/com.huangwm.gameframework/Runtime/Asset/AssetKey.cs",
     "BuildAssetBundleOptions": 320,
     "UseCachedBuild": false,
-    "ResetBundleName": false,
+    "ResetBundleName": true,
     "BuildAssetBuild": true,
     "DeleteOutputBeforeBuild": true
 }

@@ -99,6 +99,8 @@ namespace GFEditor.Asset.Rule
 
         public override void OnInspectorGUI()
         {
+            serializedObject.Update();
+
             m_Rule._OnInspectorGUI();
 
             m_Rule.BundleName = EditorGUILayout.TextField("Bundle名字", m_Rule.BundleName).ToLower();
@@ -146,7 +148,7 @@ namespace GFEditor.Asset.Rule
                 count = m_Rule.CustomShaderVariantCollectionPaths == null ? 0 : m_Rule.CustomShaderVariantCollectionPaths.Length;
                 for (int iShader = 0; iShader < count; iShader++)
                 {
-                    m_Rule.CustomShaderVariantCollectionPaths[iShader] = EGLUtility.AssetPath<ShaderVariantCollection>("自动变体集路径"
+                    m_Rule.CustomShaderVariantCollectionPaths[iShader] = EGLUtility.AssetPath<ShaderVariantCollection>("自定义变体集路径"
                         , m_Rule.CustomShaderVariantCollectionPaths[iShader]);
                 }
                 EditorGUI.indentLevel--;

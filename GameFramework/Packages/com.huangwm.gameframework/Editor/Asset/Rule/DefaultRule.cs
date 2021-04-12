@@ -113,6 +113,8 @@ namespace GFEditor.Asset.Rule
 
         public override void OnInspectorGUI()
         {
+            serializedObject.Update();
+
             m_Rule._OnInspectorGUI();
             m_Rule.RootPath = EGLUtility.Folder("目录", m_Rule.RootPath);
 

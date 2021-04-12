@@ -16,7 +16,9 @@ namespace GF.Core
     {
         public static ObjectPoolManager ObjectPool;
         public static EventCenter EventCenter;
-        public static AssetManager AssetManager;
+		
+		public static IAssetManager AssetManager;
+
         public static ILuaManager LuaManager;
         public static BehaviourManager BehaviourManager;
         public static EntityManager EntityManager;
@@ -45,13 +47,19 @@ namespace GF.Core
             EventCenter = new EventCenter(initializeData);
             yield return null;
 
-            AssetManager = new AssetManager();
-            yield return AssetManager.InitializeAsync(initializeData);
+			// TODO initializeData. use Assetbundle
+
+			if(initializeData.UseAssetBundle)
+			{
+				AssetManager = new AssetManager();
+				yield return ((AssetManager)AssetManager).InitializeAsync(initializeData);
+			}
+			
 
             EntityManager = new EntityManager(initializeData);
             yield return null;
 
-            #region Initialize Packages
+#region Initialize Packages
             List<Common.Utility.ReflectionUtility.MethodAndAttributeData> initializePackages = new List<Common.Utility.ReflectionUtility.MethodAndAttributeData>();
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
             for (int iAssembly = 0; iAssembly < assemblies.Length; iAssembly++)
@@ -87,7 +95,7 @@ namespace GF.Core
                   , $"End initialize package {iterPackageData.Name}");
                 yield return null;
             }
-            #endregion
+#endregion
         }
     }
 }
