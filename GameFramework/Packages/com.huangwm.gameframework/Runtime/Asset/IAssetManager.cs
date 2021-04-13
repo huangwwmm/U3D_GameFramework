@@ -14,8 +14,10 @@ namespace GF.Asset
 
 	public struct InstantiateBasicData
 	{
-		
 		public bool IsWorldSpace;
+		/// <summary>
+		/// 如果为Null则把GameObject实例化到Scene的根节点下
+		/// </summary>
 		public Transform Parent;
 		public Vector3 Position;
 	}

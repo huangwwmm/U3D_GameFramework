@@ -115,7 +115,6 @@ namespace GF.Asset
 		}
 
 		#region 生命周期函数
-
 		public override void OnLateUpdate(float deltaTime)
         {
             base.OnLateUpdate(deltaTime);
@@ -218,148 +217,7 @@ namespace GF.Asset
 		}
 		#endregion
 
-		/// <summary>
-		/// 包含Bundle是否需要加载判断，添加资源引用计数，并在尚未加载Bundle时，设置加载完成时回调
-		/// </summary>
-		/// <param name="bundleIndex"></param>
-		/// <param name="assetIndex"></param>
-		private void LoadBundleForLoadAsset(int bundleIndex, int assetIndex)
-        {
-            BundleHandler bundleHandler = m_BundleHandlers[bundleIndex];
-            if (bundleHandler == null)
-            {
-                bundleHandler = m_BundleHandlerPool.Alloc();
-                bundleHandler.SetBundleIndex(bundleIndex);
-                m_BundleHandlers[bundleIndex] = bundleHandler;
-            }
-
-            BundleAction bundleAction = bundleHandler.AddReference();
-            if (bundleAction == BundleAction.Load)
-            {
-                m_BundleActionRequests.Enqueue(new BundleActionRequest(bundleIndex, bundleAction));
-
-                MDebug.LogVerbose(LOG_TAG, $"Add load bundle action. Bundle:({m_BundleInfos[bundleIndex].BundleName}) Asset:({(AssetKey)assetIndex})");
-            }
-            else if (bundleAction == BundleAction.Null)
-            {
-                // Dont need handle
-            }
-            else
-            {
-                MDebug.Assert(false, "AsestBundle", "Not support BundleAction: " + bundleAction);
-            }
-
-            bundleHandler.TryAddDependencyAsset(m_AssetHandlers[assetIndex]);
-        }
-
-		/// <summary>
-		/// 资源操作请求，统一在LateUpdate中处理
-		/// </summary>
-		/// <param name="assetIndex"></param>
-		/// <param name="assetAction"></param>
-        private void AddAssetActionRequest(int assetIndex, AssetAction assetAction)
-        {
-            m_AssetActionRequests.Enqueue(new AssetActionRequest(assetIndex, assetAction));
-        }
-
-        private void AddAssetActionRequest(AssetKey assetKey, AssetAction assetAction)
-        {
-            AddAssetActionRequest((int)assetKey, assetAction);
-        }
-
-		/// <summary>
-		/// Bundle包路径
-		/// </summary>
-		/// <param name="bundleIndex"></param>
-		/// <returns></returns>
-        private string GetBundlePath(int bundleIndex)
-        {
-            return Path.Combine(m_RootBundlePath, m_BundleInfos[bundleIndex].BundleName);
-        }
-
-		/// <summary>
-		/// 卸载资源时，对其以来的bundle包减少依赖计数
-		/// </summary>
-		/// <param name="assetIndex"></param>
-		public void RemoveAssetDependencyBundleReference(int assetIndex)
-		{
-			// TODO
-			int bundleIndex = m_AssetInfos[assetIndex].BundleIndex;
-			int[] dependencyBundleIndexs = m_BundleInfos[bundleIndex].DependencyBundleIndexs;
-			for (int iBundle = 0; iBundle < dependencyBundleIndexs.Length; iBundle++)
-			{
-				int iterDependencyBundleIndex = dependencyBundleIndexs[iBundle];
-				RemoveAssetDependency(iterDependencyBundleIndex, assetIndex);
-			}
-			RemoveAssetDependency(bundleIndex, assetIndex);
-
-		}
-
-		/// <summary>
-		/// 减少指定Bundle包中的资源引用计数
-		/// </summary>
-		/// <param name="bundleIndex"></param>
-		private void RemoveAssetDependency(int bundleIndex,int assetIndex)
-		{
-			BundleHandler bundleHandler = m_BundleHandlers[bundleIndex];
-			if (bundleHandler != null)
-			{
-				BundleAction bundleAction = bundleHandler.RemoveReference();
-				if (bundleAction == BundleAction.Unload)
-				{
-					m_BundleActionRequests.Enqueue(new BundleActionRequest(bundleIndex, bundleAction));
-
-					MDebug.LogVerbose(LOG_TAG, $"Add remove bundle action. Bundle:({m_BundleInfos[bundleIndex].BundleName}) Asset:({(AssetKey)assetIndex})");
-				}
-				else if (bundleAction == BundleAction.Null)
-				{
-					// Dont need handle
-				}
-				else
-				{
-					MDebug.Assert(false, "AsestBundle", "Not support BundleAction: " + bundleAction);
-				}
-			}
-		}
-
-		/// <summary>
-		/// 实例化资源接口中间回调
-		/// </summary>
-		/// <param name="assetKey"></param>
-		/// <param name="initObject"></param>
-		private void OnLoadAssetCallBack(AssetKey assetKey, UnityEngine.Object initObject)
-		{
-			string assetKeyName = assetKey.ToString();
-			if (m_AssetToGameObjectInstantiateData.ContainsKey(assetKeyName))
-			{
-				Queue<GameObjectInstantiateData> mGameObjectInstantiateQueue = m_AssetToGameObjectInstantiateData[assetKeyName];
-				while (mGameObjectInstantiateQueue.Count > 0)
-				{
-					GameObjectInstantiateData gameObjectInstantiateData = mGameObjectInstantiateQueue.Dequeue();
-					GameObject gameObject = null;
-
-					if (initObject is GameObject)
-					{
-						gameObject = GameObject.Instantiate(initObject) as GameObject;
-						if (!gameObjectInstantiateData.basicData.IsWorldSpace)
-						{
-							if (gameObjectInstantiateData.basicData.Parent != null)
-							{
-								gameObject.transform.SetParent(gameObjectInstantiateData.basicData.Parent);
-							}
-						}
-						gameObject.transform.localPosition = gameObjectInstantiateData.basicData.Position;
-						gameObject.transform.localScale = Vector3.one;
-					}
-
-					gameObjectInstantiateData.gameObjectCallback(assetKey, gameObject);
-
-				}
-			}
-		}
-
 		#region 资源加载接口,外部调用
-
 		/// <summary>
 		/// 异步加载资源
 		/// </summary>
@@ -437,7 +295,6 @@ namespace GF.Asset
 					default:
 						MDebug.Log(LOG_TAG, "unload failed !");
 						break;
-
 				}
 			}
 		}
@@ -450,7 +307,7 @@ namespace GF.Asset
 		/// <param name="instantiateBasicData"></param>
 		public void InstantiateGameObjectAsync(AssetKey assetKey, Action<AssetKey, UnityEngine.Object> callback, InstantiateBasicData instantiateBasicData = default)
 		{
-			GameObjectInstantiateData gameObjectInstantiateData = new GameObjectInstantiateData() { basicData = instantiateBasicData, gameObjectCallback = callback };
+			GameObjectInstantiateData gameObjectInstantiateData = new GameObjectInstantiateData() { BasicData = instantiateBasicData, GameObjectCallback = callback };
 			string assetKeyName = assetKey.ToString();
 			if (!m_AssetToGameObjectInstantiateData.ContainsKey(assetKeyName))
 			{
@@ -472,17 +329,155 @@ namespace GF.Asset
 			if (asset == null) return;
 			GameObject.Destroy(asset);
 		}
-
-
-
 		#endregion
+
+		/// <summary>
+		/// 包含Bundle是否需要加载判断，添加资源引用计数，并在尚未加载Bundle时，设置加载完成时回调
+		/// </summary>
+		/// <param name="bundleIndex"></param>
+		/// <param name="assetIndex"></param>
+		private void LoadBundleForLoadAsset(int bundleIndex, int assetIndex)
+        {
+            BundleHandler bundleHandler = m_BundleHandlers[bundleIndex];
+            if (bundleHandler == null)
+            {
+                bundleHandler = m_BundleHandlerPool.Alloc();
+                bundleHandler.SetBundleIndex(bundleIndex);
+                m_BundleHandlers[bundleIndex] = bundleHandler;
+            }
+
+            BundleAction bundleAction = bundleHandler.AddReference();
+            if (bundleAction == BundleAction.Load)
+            {
+                m_BundleActionRequests.Enqueue(new BundleActionRequest(bundleIndex, bundleAction));
+
+                MDebug.LogVerbose(LOG_TAG, $"Add load bundle action. Bundle:({m_BundleInfos[bundleIndex].BundleName}) Asset:({(AssetKey)assetIndex})");
+            }
+            else if (bundleAction == BundleAction.Null)
+            {
+                // Dont need handle
+            }
+            else
+            {
+                MDebug.Assert(false, "AsestBundle", "Not support BundleAction: " + bundleAction);
+            }
+
+            bundleHandler.TryAddDependencyAsset(m_AssetHandlers[assetIndex]);
+        }
+
+		/// <summary>
+		/// 资源操作请求，统一在LateUpdate中处理
+		/// </summary>
+		/// <param name="assetIndex"></param>
+		/// <param name="assetAction"></param>
+        private void AddAssetActionRequest(int assetIndex, AssetAction assetAction)
+        {
+            m_AssetActionRequests.Enqueue(new AssetActionRequest(assetIndex, assetAction));
+        }
+
+        private void AddAssetActionRequest(AssetKey assetKey, AssetAction assetAction)
+        {
+            AddAssetActionRequest((int)assetKey, assetAction);
+        }
+
+		/// <summary>
+		/// Bundle包路径
+		/// </summary>
+		/// <param name="bundleIndex"></param>
+		/// <returns></returns>
+        private string GetBundlePath(int bundleIndex)
+        {
+            return Path.Combine(m_RootBundlePath, m_BundleInfos[bundleIndex].BundleName);
+        }
+
+		/// <summary>
+		/// 卸载资源时，对其以来的bundle包减少依赖计数
+		/// </summary>
+		/// <param name="assetIndex"></param>
+		private void RemoveAssetDependencyBundleReference(int assetIndex)
+		{
+			// TODO
+			int bundleIndex = m_AssetInfos[assetIndex].BundleIndex;
+			int[] dependencyBundleIndexs = m_BundleInfos[bundleIndex].DependencyBundleIndexs;
+			for (int iBundle = 0; iBundle < dependencyBundleIndexs.Length; iBundle++)
+			{
+				int iterDependencyBundleIndex = dependencyBundleIndexs[iBundle];
+				RemoveAssetDependency(iterDependencyBundleIndex, assetIndex);
+			}
+			RemoveAssetDependency(bundleIndex, assetIndex);
+
+		}
+
+		/// <summary>
+		/// 减少指定Bundle包中的资源引用计数
+		/// </summary>
+		/// <param name="bundleIndex"></param>
+		private void RemoveAssetDependency(int bundleIndex,int assetIndex)
+		{
+			BundleHandler bundleHandler = m_BundleHandlers[bundleIndex];
+			if (bundleHandler != null)
+			{
+				BundleAction bundleAction = bundleHandler.RemoveReference();
+				if (bundleAction == BundleAction.Unload)
+				{
+					m_BundleActionRequests.Enqueue(new BundleActionRequest(bundleIndex, bundleAction));
+
+					MDebug.LogVerbose(LOG_TAG, $"Add remove bundle action. Bundle:({m_BundleInfos[bundleIndex].BundleName}) Asset:({(AssetKey)assetIndex})");
+				}
+				else if (bundleAction == BundleAction.Null)
+				{
+					// Dont need handle
+				}
+				else
+				{
+					MDebug.Assert(false, "AsestBundle", "Not support BundleAction: " + bundleAction);
+				}
+			}
+		}
+
+		/// <summary>
+		/// 实例化资源接口中间回调
+		/// </summary>
+		/// <param name="assetKey"></param>
+		/// <param name="initObject"></param>
+		private void OnLoadAssetCallBack(AssetKey assetKey, UnityEngine.Object initObject)
+		{
+			string assetKeyName = assetKey.ToString();
+			if (m_AssetToGameObjectInstantiateData.ContainsKey(assetKeyName))
+			{
+				Queue<GameObjectInstantiateData> mGameObjectInstantiateQueue = m_AssetToGameObjectInstantiateData[assetKeyName];
+				while (mGameObjectInstantiateQueue.Count > 0)
+				{
+					GameObjectInstantiateData gameObjectInstantiateData = mGameObjectInstantiateQueue.Dequeue();
+					GameObject gameObject = null;
+
+					if (initObject is GameObject)
+					{
+						gameObject = GameObject.Instantiate(initObject) as GameObject;
+						if (!gameObjectInstantiateData.BasicData.IsWorldSpace)
+						{
+							if (gameObjectInstantiateData.BasicData.Parent != null)
+							{
+								gameObject.transform.SetParent(gameObjectInstantiateData.BasicData.Parent);
+							}
+						}
+						gameObject.transform.localPosition = gameObjectInstantiateData.BasicData.Position;
+						gameObject.transform.localScale = Vector3.one;
+					}
+
+					gameObjectInstantiateData.GameObjectCallback(assetKey, gameObject);
+
+				}
+			}
+		}
+
 		/// <summary>
 		/// 用于缓存需要实例化GameObject的数据
 		/// </summary>
-		public struct GameObjectInstantiateData
+		private struct GameObjectInstantiateData
 		{
-			public InstantiateBasicData basicData;
-			public Action<AssetKey, UnityEngine.Object> gameObjectCallback;
+			public InstantiateBasicData BasicData;
+			public Action<AssetKey, UnityEngine.Object> GameObjectCallback;
 		}
 
 		#region AssetBundle 相关管理类，请求，指令，状态
