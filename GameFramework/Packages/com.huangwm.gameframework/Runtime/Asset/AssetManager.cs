@@ -44,6 +44,10 @@ namespace GF.Asset
 		/// 实例化GameObject缓存数据
 		/// </summary>
 		private Dictionary<string, Queue<GameObjectInstantiateData>> m_AssetToGameObjectInstantiateData;
+		/// <summary>
+		/// 实例化GameObject -> Asset loaded
+		/// </summary>
+		private Dictionary<GameObject, UnityEngine.Object> m_GameObjectToAsset;
 
 		public AssetManager()
              : base("AssetManager", (int)BehaviourPriority.AssetManager, BehaviourGroup.Default.ToString())
@@ -98,6 +102,7 @@ namespace GF.Asset
             m_AssetHandlers = new AssetHandler[m_AssetInfos.Length];
             m_AssetToAssetHandlerMap = new Dictionary<UnityEngine.Object, AssetHandler>(m_AssetInfos.Length);
 			m_AssetToGameObjectInstantiateData = new Dictionary<string, Queue<GameObjectInstantiateData>>();
+			m_GameObjectToAsset = new Dictionary<GameObject, UnityEngine.Object>();
 			// 恢复Update
 			SetEnable(true);
         }
@@ -276,15 +281,19 @@ namespace GF.Asset
 		/// <param name="asset"></param>
 		public void UnloadAssetAsync(UnityEngine.Object asset)
 		{
-			if (asset == null || !m_AssetToAssetHandlerMap.ContainsKey(asset)) return;
-			AssetHandler assetHandler = m_AssetToAssetHandlerMap[asset];
+			MDebug.Assert(asset != null, LOG_TAG, "asset != null");
+			MDebug.Assert(m_AssetToAssetHandlerMap.ContainsKey(asset), LOG_TAG, "m_AssetToAssetHandlerMap.ContainsKey(asset)");
 
+			if (asset == null || !m_AssetToAssetHandlerMap.ContainsKey(asset))
+			{
+				return;
+			}
+			AssetHandler assetHandler = m_AssetToAssetHandlerMap[asset];
 			if (assetHandler == null)
 			{
 				MDebug.Log(LOG_TAG, $"UnloadAssetAsync({assetHandler.GetAssetKey()})");
 
 				AssetAction assetAction = assetHandler.RemoveReference();
-
 				switch (assetAction)
 				{
 					case AssetAction.Unload:
@@ -312,7 +321,6 @@ namespace GF.Asset
 				Queue<GameObjectInstantiateData> queue = new Queue<GameObjectInstantiateData>();
 				m_AssetToGameObjectInstantiateData.Add(assetKeyName, queue);
 			}
-
 			m_AssetToGameObjectInstantiateData[assetKeyName].Enqueue(gameObjectInstantiateData);
 			LoadAssetAsync(assetKey, OnLoadAssetCallBack);
 		}
@@ -321,11 +329,18 @@ namespace GF.Asset
 		/// 仅仅适用销毁实例化的GameObject
 		/// </summary>
 		/// <param name="asset"></param>
-		public void ReleaseGameObjectAsync(GameObject asset)
+		public void ReleaseGameObjectAsync(GameObject gameObejct)
 		{
-			MDebug.Assert(asset != null, LOG_TAG, "GameObject You Want To Release Is Null!");
-			if (asset == null) return;
-			GameObject.Destroy(asset);
+			MDebug.Assert(gameObejct != null, LOG_TAG, "GameObject You Want To Release Is Null!");
+			MDebug.Assert(m_GameObjectToAsset.ContainsKey(gameObejct), LOG_TAG, "!m_GameObjectToAsset.ContainsKey(gameObejct)");
+			if (gameObejct == null || !m_GameObjectToAsset.ContainsKey(gameObejct))
+			{
+				return;
+			}
+			UnloadAssetAsync(m_GameObjectToAsset[gameObejct]);
+			m_GameObjectToAsset.Remove(gameObejct);
+			GameObject.Destroy(gameObejct);
+			
 		}
 		#endregion
 
@@ -441,17 +456,19 @@ namespace GF.Asset
 		private void OnLoadAssetCallBack(AssetKey assetKey, UnityEngine.Object initObject)
 		{
 			string assetKeyName = assetKey.ToString();
+			int assetIndex = (int)assetKey;
 			if (m_AssetToGameObjectInstantiateData.ContainsKey(assetKeyName))
 			{
 				Queue<GameObjectInstantiateData> mGameObjectInstantiateQueue = m_AssetToGameObjectInstantiateData[assetKeyName];
 				while (mGameObjectInstantiateQueue.Count > 0)
 				{
 					GameObjectInstantiateData gameObjectInstantiateData = mGameObjectInstantiateQueue.Dequeue();
+					GameObject initGameObject = initObject as GameObject;
 					GameObject gameObject = null;
-
-					if (initObject is GameObject)
+					if (initGameObject != null)
 					{
-						gameObject = GameObject.Instantiate(initObject) as GameObject;
+						gameObject = GameObject.Instantiate(initGameObject);
+						m_GameObjectToAsset.Add(gameObject, initObject);
 						if (!gameObjectInstantiateData.BasicData.IsWorldSpace)
 						{
 							if (gameObjectInstantiateData.BasicData.Parent != null)
@@ -462,9 +479,7 @@ namespace GF.Asset
 						gameObject.transform.localPosition = gameObjectInstantiateData.BasicData.Position;
 						gameObject.transform.localScale = Vector3.one;
 					}
-
 					gameObjectInstantiateData.GameObjectCallback(assetKey, gameObject);
-
 				}
 			}
 		}
