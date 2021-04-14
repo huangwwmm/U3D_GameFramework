@@ -1,6 +1,7 @@
 ﻿using GF.Common.Data;
 using GF.Common.Debug;
 using GF.Core;
+using GF.Core.Event;
 using GF.Net.Tcp;
 using GF.Net.Tcp.Rpc;
 using System;
@@ -34,7 +35,15 @@ namespace Test.Game
 
             yield return Kernel.Initialize(kernelInitializeData);
 
-            int port = 3487;
+			Kernel.EventCenter.AddListen((int)EventName.EventA, OnEventA);
+			Kernel.EventCenter.SendImmediately((int)EventName.EventA, Kernel.EventCenter.GetUserData<EventAUserData>());
+			Kernel.EventCenter.RemoveListen((int)EventName.EventA, OnEventA);
+
+			Kernel.EventCenter.AddListen((int)EventName.EventB, OnEventB);
+			Kernel.EventCenter.SendImmediately((int)EventName.EventB, new EventBUserData());
+			Kernel.EventCenter.RemoveListen((int)EventName.EventB, OnEventB);
+
+			int port = 3487;
             new TEST_TcpServer().Start(port, 1024 * 512);
             yield return new WaitForSeconds(0.5f);
 
@@ -78,9 +87,15 @@ namespace Test.Game
             client.Send(System.Text.Encoding.UTF8.GetBytes("gwa3tr3"));
             yield return new WaitForSeconds(2.0f);
             client.Disconnect();
+		}
 
+		private void OnEventB(int eventID, bool isImmediately, IUserData userData)
+		{
+			
+		}
 
-
+		private void OnEventA(int eventID, bool isImmediately, IUserData userData)
+		{
 		}
 
 		private void Update()
@@ -127,11 +142,29 @@ namespace Test.Game
         public enum EventName : int
         {
             Start = GF.Core.Event.EventName.GFEnd,
-        }
+
+			EventA,
+			EventB,
+		}
+
+		public class EventAUserData : IPoolUserData
+		{
+			public void OnAlloc()
+			{
+			}
+
+			public void OnRelease()
+			{
+			}
+		}
+
+		public class EventBUserData : IUserData
+		{
+
+		}
+
+	}
 
 
-    }
 
-
-    
 }

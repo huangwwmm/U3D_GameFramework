@@ -48,8 +48,7 @@ namespace GF.Asset
 		public AssetManager()
              : base("AssetManager", (int)BehaviourPriority.AssetManager, BehaviourGroup.Default.ToString())
         {
-            ms_AssetManager = this;
-
+            ms_AssetManager = this; 
             // 在初始化完成前停用Update
             SetEnable(false);
         }
@@ -99,7 +98,6 @@ namespace GF.Asset
             m_AssetHandlers = new AssetHandler[m_AssetInfos.Length];
             m_AssetToAssetHandlerMap = new Dictionary<UnityEngine.Object, AssetHandler>(m_AssetInfos.Length);
 			m_AssetToGameObjectInstantiateData = new Dictionary<string, Queue<GameObjectInstantiateData>>();
-
 			// 恢复Update
 			SetEnable(true);
         }
