@@ -11,7 +11,7 @@ namespace GF.ExampleGames.SlideCube
     public class CubeManager : BaseBehaviour
     {
         private float m_OriginX, m_OriginY = 0;
-        private float m_CenterX, m_CenterY = 0;
+        private int m_CenterX, m_CenterY = 0;
         private int m_Row, m_Colomn = -1;
         private int m_CameraViewHeight = 20;
 
@@ -106,6 +106,7 @@ namespace GF.ExampleGames.SlideCube
             Kernel.AssetManager.ReleaseGameObjectAsync(m_CubePrefab);
         }
 
+
         /// <summary>
         /// Cube滑动事件
         /// </summary>
@@ -115,44 +116,63 @@ namespace GF.ExampleGames.SlideCube
         private void OnCubeSlide(int eventId, bool isImmediately, IUserData data)
         {
             SlideData slideData = (SlideData)data;
-            if (Mathf.Abs(slideData.startPosition.x - slideData.endPosition.x) < m_MinSlideDistance && Mathf.Abs(slideData.startPosition.y - slideData.endPosition.y) < m_MinSlideDistance)
+            if (CheckSlideCondition(slideData.startPosition, slideData.endPosition))
             {
-                return;
-            }
-            m_CurrentItem = GetHitCubeItem(slideData.transform);
-            m_SlideDirection = GetSlideDirection(slideData.startPosition, slideData.endPosition);
-            if (m_CurrentItem == null)
-            {
-                //Debug.Log("hit is null!");
-                return;
-            }
-            m_TargetList.Clear();
-            m_SlideTransforms.Clear();
-            m_SlideOriginPositions.Clear();
+                m_CurrentItem = GetHitCubeItem(slideData.transform);
+                m_SlideDirection = GetSlideDirection(slideData.startPosition, slideData.endPosition);
+                if (m_CurrentItem == null)
+                {
+                    //Debug.Log("hit is null!");
+                    return;
+                }
+                m_TargetList.Clear();
+                m_SlideTransforms.Clear();
+                m_SlideOriginPositions.Clear();
 
-            if (m_SlideDirection==Vector3.left)
-            {
-                m_TargetList = GetTargetRowList(m_CurrentItem);
-                DoLeftOrder(m_TargetList);
+                if (m_SlideDirection == Vector3.left)
+                {
+                    m_TargetList = GetTargetRowList(m_CurrentItem);
+                    DoLeftOrder(m_TargetList);
+                }
+                else if (m_SlideDirection == Vector3.right)
+                {
+                    m_TargetList = GetTargetRowList(m_CurrentItem);
+                    DoRightOrder(m_TargetList);
+                }
+                else if (m_SlideDirection == Vector3.forward)
+                {
+                    m_TargetList = GetTargetColomnList(m_CurrentItem);
+                    DoUpOrder(m_TargetList);
+                }
+                else
+                {
+                    m_TargetList = GetTargetColomnList(m_CurrentItem);
+                    DoDownOrder(m_TargetList);
+                }
             }
-            else if (m_SlideDirection==Vector3.right)
-            {
-                m_TargetList = GetTargetRowList(m_CurrentItem);
-                DoRightOrder(m_TargetList);
-            }
-            else if (m_SlideDirection==Vector3.forward)
-            {
-                m_TargetList = GetTargetColomnList(m_CurrentItem);
-                DoUpOrder(m_TargetList);
-            }
-            else
-            {
-                m_TargetList = GetTargetColomnList(m_CurrentItem);
-                DoDownOrder(m_TargetList);
-            }
-            
         }
 
+        /// <summary>
+        /// 检查滑动满足条件
+        /// </summary>
+        /// <param name="startPosition"></param>
+        /// <param name="endPosition"></param>
+        /// <returns></returns>
+        private bool CheckSlideCondition(Vector2 startPosition, Vector2 endPosition)
+        {
+            if (Mathf.Abs(startPosition.x - endPosition.x) < m_MinSlideDistance && Mathf.Abs(startPosition.y - endPosition.y) < m_MinSlideDistance)
+            {
+                return false;
+            }
+            Vector2 targetDir = endPosition - startPosition;
+            float angle = Vector2.Angle(Vector2.right, targetDir);
+            angle = Mathf.Abs(90 - angle);
+            if (Mathf.Abs(angle - 45) <= GlobalConfig.ANGLE_TOLERANCE)
+            {
+                return false;
+            }
+            return true;
+        }
 
         /// <summary>
         /// 检查是否完成

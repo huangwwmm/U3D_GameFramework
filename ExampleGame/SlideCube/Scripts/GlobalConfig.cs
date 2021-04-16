@@ -11,6 +11,6 @@ namespace GF.ExampleGames.SlideCube
         public const float ITEM_SIZE = 5;
         public const float ITEM_HALFSLIDEDISTANCE = 160;
         public const float ANIMATION_MOVETIME = 0.2f;
-        
+        public const int ANGLE_TOLERANCE = 10;
     }
 }
