@@ -13,6 +13,7 @@ namespace GF.ExampleGames.SlideCube
         private float m_OriginX, m_OriginY = 0;
         private float m_CenterX, m_CenterY = 0;
         private int m_Row, m_Colomn = -1;
+        private int m_CameraViewHeight = 20;
 
         private List<CubeItem> m_CubeItems;
         private Vector3 m_FirstPosition, m_LastPosition;
@@ -28,6 +29,7 @@ namespace GF.ExampleGames.SlideCube
         private float m_SlideSpeed = 1;
         private bool m_CanSlide = false;
         private float m_Percent = 0;
+        private float m_MinSlideDistance = 0;
 
         private ObjectPool<CubeItem> m_CubeItemPool;
         private CubeItem m_TempCubeItem;
@@ -54,6 +56,10 @@ namespace GF.ExampleGames.SlideCube
             m_Row = row;
             m_Colomn = colomn;
 
+            int zoomMultiple = m_Row > m_Colomn ? m_Row : m_Colomn;
+            m_MinSlideDistance = zoomMultiple - 2 == 0? GlobalConfig.ITEM_HALFSLIDEDISTANCE: GlobalConfig.ITEM_HALFSLIDEDISTANCE / (2 * (zoomMultiple - 2));
+            m_CameraViewHeight = zoomMultiple * 10;
+            Camera.main.transform.position = new Vector3(0, m_CameraViewHeight, 0.5f);
             Kernel.AssetManager.InstantiateGameObjectAsync(GF.Asset.AssetKey.Prefabs_Box001_prefab, (GF.Asset.AssetKey key, UnityEngine.Object tmpObj) =>
             {
                 m_CubePrefab = tmpObj as GameObject;
@@ -71,10 +77,11 @@ namespace GF.ExampleGames.SlideCube
         /// <param name="colomn"></param>
         private void InitCubus(UnityEngine.GameObject prefabCube)
         {
-            m_CenterX = (int)(m_Row * 0.5f);
-            m_CenterY = (int)(m_Colomn * 0.5f);
-            m_OriginX = m_Row % 2 == 0 ? -GlobalConfig.ITEM_SIZE * 0.5f : -GlobalConfig.ITEM_SIZE;
+            m_CenterX = m_Row % 2 == 0 ? m_Row - 1 : (int)(m_Row * 0.5f);
+            m_CenterY = m_Colomn % 2 == 0 ? m_Colomn - 1 : (int)(m_Colomn * 0.5f);
+            m_OriginX = m_Row % 2 == 0 ? -(GlobalConfig.ITEM_SIZE * 0.5f) : -GlobalConfig.ITEM_SIZE;
             m_OriginY = m_Colomn % 2 == 0 ? GlobalConfig.ITEM_SIZE * 0.5f : GlobalConfig.ITEM_SIZE;
+            
             Vector3 centerPosition = new Vector3(m_OriginX * m_CenterX, 0, m_OriginY * m_CenterY);
             int index = 0;
             for (int i = 0; i < m_Colomn; i++)
@@ -108,6 +115,10 @@ namespace GF.ExampleGames.SlideCube
         private void OnCubeSlide(int eventId, bool isImmediately, IUserData data)
         {
             SlideData slideData = (SlideData)data;
+            if (Mathf.Abs(slideData.startPosition.x - slideData.endPosition.x) < m_MinSlideDistance && Mathf.Abs(slideData.startPosition.y - slideData.endPosition.y) < m_MinSlideDistance)
+            {
+                return;
+            }
             m_CurrentItem = GetHitCubeItem(slideData.transform);
             m_SlideDirection = GetSlideDirection(slideData.startPosition, slideData.endPosition);
             if (m_CurrentItem == null)
