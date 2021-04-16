@@ -54,11 +54,11 @@ namespace GF.ExampleGames.SlideCube
             m_Row = row;
             m_Colomn = colomn;
 
-            Kernel.AssetManager.InstantiateGameObjectAsync(GF.Asset.AssetKey.New_Folder_Box001_Variant_1_prefab, (GF.Asset.AssetKey key, UnityEngine.Object tmpObj) =>
+            Kernel.AssetManager.InstantiateGameObjectAsync(GF.Asset.AssetKey.Prefabs_Box001_prefab, (GF.Asset.AssetKey key, UnityEngine.Object tmpObj) =>
             {
                 m_CubePrefab = tmpObj as GameObject;
                 InitCubus(m_CubePrefab);
-                
+
             });
 
         }
