@@ -32,7 +32,7 @@ namespace GF.ExampleGames.SlideCube
             {
                 m_StartPosition = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
                 m_Ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                Debug.Log($"StartPos:{m_StartPosition}");
+                //Debug.Log($"StartPos:{m_StartPosition}");
                 if (Physics.Raycast(m_Ray, out m_Hit, 100.0f))
                 {
                     //Debug.Log("射线检测到的物体名称: " + hit.transform.name);
@@ -42,7 +42,7 @@ namespace GF.ExampleGames.SlideCube
             if (Input.GetMouseButtonUp(0))
             {
                 m_EndPosition = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
-                Debug.Log($"EndPos:{m_StartPosition}");
+                //Debug.Log($"EndPos:{m_EndPosition}");
                 if (m_Hit.transform != null)
                 {
                     m_MoveData.transform = m_Hit.transform;

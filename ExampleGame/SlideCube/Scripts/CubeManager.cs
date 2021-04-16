@@ -35,7 +35,7 @@ namespace GF.ExampleGames.SlideCube
         public CubeManager()
             : base("CubeManager", (int)BehaviourPriority.GF_Start, BehaviourGroup.Default.ToString())
         {
-            m_CubeItemPool = new ObjectPool<CubeItem>(32);
+            m_CubeItemPool = new ObjectPool<CubeItem>();
             m_CubeItems = new List<CubeItem>();
             m_TargetList = new List<CubeItem>();
             m_SlideTransforms = new List<Transform>();
@@ -88,8 +88,6 @@ namespace GF.ExampleGames.SlideCube
                     cube.name = $"CubeItem{index}";
                     cube.transform.localEulerAngles = new Vector3(-90, 0, 0);
 
-                    //CubeItem cubeItem = new CubeItem();
-                    //cubeItem.Init(i, j, cube.GetComponent<Transform>());
                     m_TempCubeItem=m_CubeItemPool.Alloc();
                     m_TempCubeItem.Init(i, j, cube.GetComponent<Transform>());
                     m_CubeItems.Add(m_TempCubeItem);
@@ -317,7 +315,7 @@ namespace GF.ExampleGames.SlideCube
             {
                 for (int i = 0; i < m_CubeContainer.childCount; i++)
                 {
-                    GameObject.Destroy(m_CubeContainer.gameObject);
+                    GameObject.Destroy(m_CubeContainer.GetChild(i));
                 }
             }
         }
