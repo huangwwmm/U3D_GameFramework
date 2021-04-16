@@ -123,13 +123,7 @@ namespace GF.Core
 
 			LuaScriptingDefine = new HashSet<string>();
 
-#if UNITY_EDITOR
-            LuaScriptingDefine.Add("UNITY_EDITOR");
-#endif
 
-#if GF_DEBUG
-            LuaScriptingDefine.Add("GF_DEBUG");
-#endif
             // HACK just testAssetBundle;
 			//todo,Editor,runtime  两种方式获取，先写死测试 默认Editor
 			//todo 根据不同平台，设置不同路径例如Windows/AssetBundles, Android/AssetBundles

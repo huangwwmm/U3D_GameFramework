@@ -10,62 +10,7 @@ using GF.Common.Debug;
 using GF.Common.Data;
 using System.Collections.Generic;
 using UnityEditor;
-/*
-* 备注：
-* lamda导致闭包频繁分配内存
-* int a ;
-* xxx => ()
-* {
-* int b =a;
-* }
-* 
-* 
-*  xxx = new Temp();
-* xxx.a = a;
-* xxx.Handle
-* 
-* class Temp
-* {
-* int a ;
-* 
-* void Handle()
-* {
-* int b = a;
-* }
-* 
-* }
-* 
-* */
 
-// see XLuaManager.InitializePackage
-// Start is called before the first frame update
-
-
-//[Core.InitializePackage("XLuaManager", (int)Core.PackageProiority.XLuaManager)]
-//internal static IEnumerator InitializePackage(Core.KernelInitializeData initializeData)
-//{
-// TODO check ini.use assetbundle
-//	XLuaManager xluaManager = new XLuaManager();
-//	Core.Kernel.LuaManager = xluaManager;
-//	return xluaManager.InitializeAsync(initializeData);
-//}
-
-/* Init()
-{
- load by key.
-
-need (key to assetPath) file
-
-
-}
-
-LateUpdate()
-{
-handle callback or release
-}
-
-}
-*/
 namespace GFEditor.Asset
 {
 	/// <summary>
@@ -137,8 +82,6 @@ namespace GFEditor.Asset
 			
 		}
 
-
-
 		/// <summary>
 		/// 实例化资源接口中间回调
 		/// </summary>
@@ -192,8 +135,8 @@ namespace GFEditor.Asset
 
 		public void LoadAssetAsync(AssetKey assetKey, Action<AssetKey, UnityEngine.Object> callback)
 		{
+			MDebug.Assert(callback != null, LOG_TAG, "callback == null");
 			MDebug.Log(LOG_TAG, $"LoadAssetAsync({assetKey})");
-			MDebug.Assert(callback != null, LOG_TAG, "callback != null");
 			int assetIndex = (int)assetKey;
 			if(!m_AssetCallBackDic.ContainsKey(assetIndex))
 			{
@@ -206,32 +149,25 @@ namespace GFEditor.Asset
 		public void ReleaseGameObjectAsync(GameObject asset)
 		{
 			MDebug.Assert(asset != null, LOG_TAG, "GameObject You Want To Release Is Null!");
-			if (asset == null) return;
 			GameObject.Destroy(asset);
 		}
 
-		//和AssetManager保持一致
 		public void UnloadAssetAsync(UnityEngine.Object asset)
 		{
-			if (asset == null) return;
-			if (asset != null && !(asset is GameObject) && !(asset is Component))
+			MDebug.Assert(asset != null, LOG_TAG, "Asset You Want To Release Is Null!");
+			if (!(asset is GameObject) && !(asset is Component))
 			{
 				Resources.UnloadAsset(asset);
-
 			}
 		}
 		#endregion
-
-		#region 生命周期函数
+		
 		public override void OnLateUpdate(float deltaTime)
 		{
 			base.OnLateUpdate(deltaTime);
 			LoadAsset();
 		}
 
-		/// <summary>
-		/// 释放
-		/// </summary>
 		public override void OnRelease()
 		{
 			if(m_AssetCallBackDic != null)
@@ -250,9 +186,6 @@ namespace GFEditor.Asset
 
 		}
 
-		#endregion
-
-		#region 内部类 AssetHandler,AssetAction,AssetActionRequest,AssetState
 		/// <summary>
 		/// 用于缓存需要实例化GameObject的数据
 		/// </summary>
@@ -261,7 +194,6 @@ namespace GFEditor.Asset
 			public InstantiateBasicData BasicData;
 			public Action<AssetKey, UnityEngine.Object> GameObjectCallback;
 		}
-		#endregion
 	}
 }
 
