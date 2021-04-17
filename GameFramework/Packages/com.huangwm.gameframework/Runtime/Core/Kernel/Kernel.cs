@@ -24,13 +24,18 @@ namespace GF.Core
         public static EntityManager EntityManager;
 
         private static bool ms_IsInitialized = false;
+		public static MonoBehaviour Mono;
 
-        public static IEnumerator Initialize(KernelInitializeData initializeData)
+		public static TempAssetInitManager AssetInitManager;
+		public static TempDownloadManager DownloadManager;
+
+        public static IEnumerator Initialize(MonoBehaviour mono, KernelInitializeData initializeData)
         {
             MDebug.Assert(ms_IsInitialized == false, "ms_IsInitialized == false");
             ms_IsInitialized = true;
+			Mono = mono;
 
-            MDebug.Log("Core", "Initialize kernel with date:\n" + JsonUtility.ToJson(initializeData, true));
+			MDebug.Log("Core", "Initialize kernel with date:\n" + JsonUtility.ToJson(initializeData, true));
 
             BehaviourManager = new GameObject("GF.Core").AddComponent<BehaviourManager>();
             yield return null;
@@ -47,17 +52,22 @@ namespace GF.Core
             EventCenter = new EventCenter(initializeData);
             yield return null;
 
-			// TODO initializeData. use Assetbundle
+			
+            EntityManager = new EntityManager(initializeData);
+            yield return null;
 
-			if(initializeData.UseAssetBundle)
+			DownloadManager = new TempDownloadManager();
+			yield return DownloadManager.InitializeAsync(initializeData);
+
+			if (initializeData.UseAssetBundle)
 			{
 				AssetManager = new AssetManager();
 				yield return ((AssetManager)AssetManager).InitializeAsync(initializeData);
 			}
-			
 
-            EntityManager = new EntityManager(initializeData);
-            yield return null;
+			//TempAssetInitManager
+			AssetInitManager = new TempAssetInitManager();
+			yield return AssetInitManager.InitializeAsync(initializeData);
 
 #region Initialize Packages
             List<Common.Utility.ReflectionUtility.MethodAndAttributeData> initializePackages = new List<Common.Utility.ReflectionUtility.MethodAndAttributeData>();

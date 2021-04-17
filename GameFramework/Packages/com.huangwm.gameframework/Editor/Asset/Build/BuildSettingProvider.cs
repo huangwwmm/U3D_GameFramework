@@ -13,6 +13,7 @@ namespace GFEditor.Asset.Build
         private string m_FormatedAssetInfosPath;
         private string m_FormatedAssetKeyEnumFilePath;
         private string m_FormatedBundleInfoPath;
+        private string m_FormatedABVersionFilePath;
 
         [SettingsProvider]
         public static SettingsProvider CreateSettingsProvider()
@@ -144,7 +145,7 @@ namespace GFEditor.Asset.Build
                 EditorUtility.RevealInFinder(m_FormatedAssetKeyEnumFilePath);
             }
             EditorGUILayout.EndHorizontal();
-            EditorGUILayout.Space();
+			EditorGUILayout.Space();
 
             setting.BuildAssetBundleOptions = (BuildAssetBundleOptions)EditorGUILayout.EnumFlagsField("打包选项", setting.BuildAssetBundleOptions);
             setting.BuildAssetBuild = EditorGUILayout.Toggle("打包AB", setting.BuildAssetBuild);

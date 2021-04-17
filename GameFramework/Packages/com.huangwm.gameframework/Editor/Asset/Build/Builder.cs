@@ -197,22 +197,21 @@ namespace GFEditor.Asset.Build
                 {
                     continue;
                 }
-
                 AssetImporter iterAssetImporter = AssetImporter.GetAtPath(iterAssetPath);
                 if (!assetToBundle.TryGetValue(iterAssetPath, out string bundleName))
                 {
                     bundleName = string.Empty;
                 }
+				
+				if (iterAssetImporter.assetBundleName != bundleName)
+				{
+					modifyAssetCount++;
+					iterAssetImporter.assetBundleName = bundleName;
+					EditorUtility.SetDirty(iterAssetImporter);
+				}
 
-                if (iterAssetImporter.assetBundleName != bundleName)
-                {
-                    modifyAssetCount++;
-                    iterAssetImporter.assetBundleName = bundleName;
-                    EditorUtility.SetDirty(iterAssetImporter);
-                }
-
-                //1000间隔,执行一次IO操作，提高性能
-                if (iAsset % 1000 == 0)
+				//1000间隔,执行一次IO操作，提高性能,如果中断可能会出现问题，比如BuildPipling获取不到一些已经赋值的BuildName
+				if (iAsset % 1000 == 0)
                 {
                     AssetDatabase.SaveAssets();
                     Resources.UnloadUnusedAssets();
@@ -222,6 +221,7 @@ namespace GFEditor.Asset.Build
             EditorUtility.ClearProgressBar();
             AssetDatabase.SaveAssets();
             Resources.UnloadUnusedAssets();
+			AssetDatabase.Refresh();
             elapsedMS = MDebug.GetMillisecondsSinceStartup() - elapsedMS;
             MDebug.Log("AssetBundle"
                 , $"Modify bundleName count ({modifyAssetCount}) elapsed {MDebug.FormatMilliseconds(elapsedMS)}");

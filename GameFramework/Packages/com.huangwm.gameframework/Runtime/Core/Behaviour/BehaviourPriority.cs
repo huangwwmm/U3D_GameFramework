@@ -6,7 +6,8 @@
 
         EventCenter,
         ObjectPoolManager,
-        AssetManager,
+		DownloadManager,
+		AssetManager,
 
         LuaManager,
         LuaLog,

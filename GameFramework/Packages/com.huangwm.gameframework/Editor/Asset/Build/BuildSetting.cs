@@ -1,4 +1,5 @@
 ﻿using GF.Common.Debug;
+using GF.Common.Utility;
 using GFEditor.Common.Data;
 using System;
 using System.IO;
@@ -60,13 +61,14 @@ namespace GFEditor.Asset.Build
             return FormatPath(AssetKeyEnumFilePath);
         }
 
-        protected string FormatPath(string path)
+
+		protected string FormatPath(string path)
         {
             return path.Replace("{Application.dataPath}", Application.dataPath)
-                .Replace("{BuildTarget}", EditorUserBuildSettings.activeBuildTarget.ToString());
+                .Replace("{BuildTarget}", GetPlatformFolderName(EditorUserBuildSettings.activeBuildTarget));
         }
 
-        protected override string GetSettingName()
+		protected override string GetSettingName()
         {
             return SETTING_NAME;
         }

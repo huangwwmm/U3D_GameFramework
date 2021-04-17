@@ -5,34 +5,34 @@ using UnityEngine;
 
 namespace GF.Core.Behaviour
 {
-    /// <summary>
-    /// 相当于<see cref="UnityEngine.MonoBehaviour"/>
-    /// 自己实现这个的原因是：
-    ///     Unity的MonoBehaviour性能开销比较大
-    ///     实现多线程的Update
-    ///     控制Update频率
-    ///     方便调试(监控Update的用时、内存变化)
-    /// 
-    /// 事件的执行顺序
-    ///     <see cref="OnInitialize"/>
-    ///     <see cref="OnEnable"/>
-    ///     <see cref="OnTaskUpdate_Thread"/> 等待上一帧的<see cref="OnTaskUpdate_Thread"/>执行完成
-    ///     <see cref="OnFixedUpdate"/>
-    ///     <see cref="OnBeforeParallelUpdate"/>
-    ///     <see cref="OnParallelUpdate_Thread"/>
-    ///     <see cref="OnAfterParallelUpdate"/>
-    ///     <see cref="OnUpdate"/>
-    ///     <see cref="OnLateUpdate"/>
-    ///     <see cref="OnTaskUpdate_Thread"/> 开始执行
-    ///     <see cref="OnDisable"/>
-    ///     <see cref="OnRelease"/>
-    /// 上列函数中：
-    ///     <see cref="OnInitialize"/>和<see cref="BaseBehaviour"/>的调用顺序相同
-    ///     <see cref="OnRelease"/>和<see cref="DestorySelf"/>的调用顺序相同
-    /// 其余函数的调用时机受<see cref="m_Priority"/>影响
-    /// 如果两个Behavior的<see cref="m_Priority"/>相同，则<see cref="m_InstanceID"/>小的优先执行
-    /// </summary>
-    public class BaseBehaviour
+	/// <summary>
+	/// 相当于<see cref="BaseProjectSetting"/>
+	/// 自己实现这个的原因是：
+	///     Unity的MonoBehaviour性能开销比较大
+	///     实现多线程的Update
+	///     控制Update频率
+	///     方便调试(监控Update的用时、内存变化)
+	/// 
+	/// 事件的执行顺序
+	///     <see cref="OnInitialize"/>
+	///     <see cref="OnEnable"/>
+	///     <see cref="OnTaskUpdate_Thread"/> 等待上一帧的<see cref="OnTaskUpdate_Thread"/>执行完成
+	///     <see cref="OnFixedUpdate"/>
+	///     <see cref="OnBeforeParallelUpdate"/>
+	///     <see cref="OnParallelUpdate_Thread"/>
+	///     <see cref="OnAfterParallelUpdate"/>
+	///     <see cref="OnUpdate"/>
+	///     <see cref="OnLateUpdate"/>
+	///     <see cref="OnTaskUpdate_Thread"/> 开始执行
+	///     <see cref="OnDisable"/>
+	///     <see cref="OnRelease"/>
+	/// 上列函数中：
+	///     <see cref="OnInitialize"/>和<see cref="BaseBehaviour"/>的调用顺序相同
+	///     <see cref="OnRelease"/>和<see cref="DestorySelf"/>的调用顺序相同
+	/// 其余函数的调用时机受<see cref="m_Priority"/>影响
+	/// 如果两个Behavior的<see cref="m_Priority"/>相同，则<see cref="m_InstanceID"/>小的优先执行
+	/// </summary>
+	public class BaseBehaviour
     {
         private const string EMPTY_NAME = "New Behaviour";
 

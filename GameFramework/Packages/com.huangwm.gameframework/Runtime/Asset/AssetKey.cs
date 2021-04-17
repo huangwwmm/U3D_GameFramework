@@ -2,9 +2,9 @@ namespace GF.Asset
 {
 	public enum AssetKey
 	{
-		New_Folder_Cube_prefab,
-		New_Folder_Material123_mat,
-		New_Folder_TestAssets1_prefab,
-		New_Folder_TestAssets2_prefab,
+		NewFolder_Cube12_prefab,
+		NewFolder_Material123_mat,
+		NewFolder_TestAssets112_prefab,
+		NewFolder_TestAssets123_prefab,
 	}
 }
