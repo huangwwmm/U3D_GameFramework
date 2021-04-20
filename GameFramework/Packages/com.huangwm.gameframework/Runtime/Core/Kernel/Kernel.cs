@@ -24,8 +24,8 @@ namespace GF.Core
         public static EntityManager EntityManager;
 
         private static bool ms_IsInitialized = false;
-		public static MonoBehaviour Mono;
 
+		public static MonoBehaviour Mono;
 		public static TempAssetInitManager AssetInitManager;
 		public static TempDownloadManager DownloadManager;
 

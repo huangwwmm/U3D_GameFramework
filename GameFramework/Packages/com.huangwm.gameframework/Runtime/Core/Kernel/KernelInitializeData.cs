@@ -94,7 +94,7 @@ namespace GF.Core
         /// </summary>
         public string BundlePath;
 
-		// TODO 是否可以优化,临时设置Bool，编辑器模式下，直接加载资源，运行时，加载AssetBundle资源
+		
 		public bool UseAssetBundle;
 
 		#endregion
