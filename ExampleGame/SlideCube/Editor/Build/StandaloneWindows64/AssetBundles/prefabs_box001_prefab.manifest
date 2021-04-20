@@ -1,0 +1,29 @@
+ManifestFileVersion: 0
+CRC: 2828346762
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 89b657300943ba63d49d3e37e61dc2cd
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 7652f69dff3dcd0741269161f69220a7
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 65
+  Script: {instanceID: 0}
+Assets:
+- Assets/ExampleGames/SlideCube/Prefabs/Box001.prefab
+Dependencies:
+- E:/work/U3D_GameFramework/GameFramework/Assets/../Build/StandaloneWindows64/AssetBundles/prefabs_box001_fbx
