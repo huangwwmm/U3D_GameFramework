@@ -10,3 +10,5 @@
 /*.sln
 
 !/Packages/com.huangwm.gameframework/*
+
+/Assets/ExampleGames/

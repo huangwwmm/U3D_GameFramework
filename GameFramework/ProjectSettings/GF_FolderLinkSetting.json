@@ -1,0 +1,14 @@
+{
+    "Items": [
+        {
+            "Name": "ExampleGame-SlideCube",
+            "Links": [
+                {
+                    "Link": "Assets\\ExampleGames\\SlideCube",
+                    "Target": "..\\ExampleGame\\SlideCube",
+                    "IsDirectory": true
+                }
+            ]
+        }
+    ]
+}
