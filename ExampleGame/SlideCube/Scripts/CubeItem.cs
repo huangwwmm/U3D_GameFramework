@@ -21,6 +21,10 @@ namespace GF.ExampleGames.SlideCube
             {
                 return m_Transform;
             }
+            set
+            {
+                m_Transform = value;
+            }
         }
 
         public int BelongRow
@@ -82,11 +86,36 @@ namespace GF.ExampleGames.SlideCube
             }
             else
             {
-
+            
             }
             return m_Transform.localPosition;
-
         }
+
+        public bool CheckIsEdgeCubeItem(Vector3 direction, Vector3 firstPosition, Vector3 lastPosition)
+        {
+            if (Mathf.Abs(m_Transform.localPosition.x - firstPosition.x) < 0.1f && direction == Vector3.left)
+            {
+                return true;
+            }
+            else if (Mathf.Abs(m_Transform.localPosition.x - lastPosition.x) < 0.1f && direction == Vector3.right)
+            {
+                return true;
+            }
+            else if (Mathf.Abs(m_Transform.localPosition.z - firstPosition.z) < 0.1f && direction == Vector3.forward)
+            {
+                return true;
+            }
+            else if (Mathf.Abs(m_Transform.localPosition.z - lastPosition.z) < 0.1f && direction == Vector3.back)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        
+        
         public void OnAlloc()
         {
             
