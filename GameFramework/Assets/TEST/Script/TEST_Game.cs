@@ -1,4 +1,5 @@
-﻿using GF.Common.Data;
+﻿using GF.Asset;
+using GF.Common.Data;
 using GF.Common.Debug;
 using GF.Core;
 using GF.Core.Event;
@@ -33,68 +34,60 @@ namespace Test.Game
             kernelInitializeData.LoadLuaByAssetDatabaseWhenEditor = true;
 #endif
 
-            yield return Kernel.Initialize(this,kernelInitializeData);
+            yield return Kernel.Initialize(kernelInitializeData);
 
-			//Kernel.EventCenter.AddListen((int)EventName.EventA, OnEventA);
-			//Kernel.EventCenter.SendImmediately((int)EventName.EventA, Kernel.EventCenter.GetUserData<EventAUserData>());
-			//Kernel.EventCenter.RemoveListen((int)EventName.EventA, OnEventA);
+			Kernel.EventCenter.AddListen((int)EventName.EventA, OnEventA);
+			Kernel.EventCenter.SendImmediately((int)EventName.EventA, Kernel.EventCenter.GetUserData<EventAUserData>());
+			Kernel.EventCenter.RemoveListen((int)EventName.EventA, OnEventA);
 
-			//Kernel.EventCenter.AddListen((int)EventName.EventB, OnEventB);
-			//Kernel.EventCenter.SendImmediately((int)EventName.EventB, new EventBUserData());
-			//Kernel.EventCenter.RemoveListen((int)EventName.EventB, OnEventB);
-
-			//初始化资源，同步服务端数据
-			Kernel.EventCenter.SendImmediately((int)GF.Core.Event.EventName.GFAssetInit, new GF.Asset.TempEventAssetInitData() { InitAndDownloadingCallBack = InitAndDownload });
+			Kernel.EventCenter.AddListen((int)EventName.EventB, OnEventB);
+			Kernel.EventCenter.SendImmediately((int)EventName.EventB, new EventBUserData());
+			Kernel.EventCenter.RemoveListen((int)EventName.EventB, OnEventB);
 
 			int port = 3487;
-			new TEST_TcpServer().Start(port, 1024 * 512);
-			yield return new WaitForSeconds(0.5f);
+            new TEST_TcpServer().Start(port, 1024 * 512);
+            yield return new WaitForSeconds(0.5f);
 
-			RpcUtiltiy.GetOrCollectAllStaticMethods();
+            RpcUtiltiy.GetOrCollectAllStaticMethods();
 
-			TcpClient client = new TcpClient("Player A");
+            TcpClient client = new TcpClient("Player A");
 
-			client.OnConnected += OnConnected;
-			client.OnDisconnected += OnDisconnected;
-			client.OnConnectFailed += OnConnectFailed;
-			client.OnReceivedPackage += OnReceivedPackage;
+            client.OnConnected += OnConnected;
+            client.OnDisconnected += OnDisconnected;
+            client.OnConnectFailed += OnConnectFailed;
+            client.OnReceivedPackage += OnReceivedPackage;
 
-			client.Connect(Environment.MachineName, port);
-			yield return new WaitForSeconds(2.0f);
+            client.Connect(Environment.MachineName, port);
+            yield return new WaitForSeconds(2.0f);
 
-			{
-				RpcWrapper rpcWrapper = new RpcWrapper(client);
+            {
+                RpcWrapper rpcWrapper = new RpcWrapper(client);
 
-				RpcValue paramater = rpcWrapper.RpcValuePool.Alloc();
-				paramater.ValueType = GF.Net.Tcp.Rpc.ValueType.Float;
-				paramater.FloatValue = 32.0f;
+                RpcValue paramater = rpcWrapper.RpcValuePool.Alloc();
+                paramater.ValueType = GF.Net.Tcp.Rpc.ValueType.Float;
+                paramater.FloatValue = 32.0f;
 
-				rpcWrapper.Test(paramater);
-				rpcWrapper.ReleaseRpcValue(paramater);
+                rpcWrapper.Test(paramater);
+                rpcWrapper.ReleaseRpcValue(paramater);
 
-				paramater = null;
-				rpcWrapper.Release();
-				rpcWrapper = null;
-				yield return new WaitForSeconds(0.5f);
-			}
+                paramater = null;
+                rpcWrapper.Release();
+                rpcWrapper = null;
+                yield return new WaitForSeconds(0.5f);
+            }
 
-			GC.Collect();
-			GC.Collect();
+            GC.Collect();
+            GC.Collect();
 
-			client.Send(System.Text.Encoding.UTF8.GetBytes("sdf"));
-			client.Send(System.Text.Encoding.UTF8.GetBytes("fgawery"));
-			client.Send(System.Text.Encoding.UTF8.GetBytes("besart4"));
-			yield return new WaitForSeconds(2.0f);
-			client.Send(System.Text.Encoding.UTF8.GetBytes("fae7"));
-			client.Send(System.Text.Encoding.UTF8.GetBytes("g34tg56"));
-			client.Send(System.Text.Encoding.UTF8.GetBytes("gwa3tr3"));
-			yield return new WaitForSeconds(2.0f);
-			client.Disconnect();
-		}
-
-		private void InitAndDownload(string title, float percent)
-		{
-			MDebug.Log("初始化资源", $"当前提示语:{title}，当前进度:{percent}");
+            client.Send(System.Text.Encoding.UTF8.GetBytes("sdf"));
+            client.Send(System.Text.Encoding.UTF8.GetBytes("fgawery"));
+            client.Send(System.Text.Encoding.UTF8.GetBytes("besart4"));
+            yield return new WaitForSeconds(2.0f);
+            client.Send(System.Text.Encoding.UTF8.GetBytes("fae7"));
+            client.Send(System.Text.Encoding.UTF8.GetBytes("g34tg56"));
+            client.Send(System.Text.Encoding.UTF8.GetBytes("gwa3tr3"));
+            yield return new WaitForSeconds(2.0f);
+            client.Disconnect();
 		}
 
 		private void OnEventB(int eventID, bool isImmediately, IUserData userData)
@@ -108,7 +101,22 @@ namespace Test.Game
 
 		private void Update()
 		{
-			
+			//if (Input.GetKeyDown(KeyCode.G))
+			//{
+			//	Debug.Log("Instantiate GameObject send!");
+   //             Kernel.AssetManager.InstantiateGameObjectAsync(AssetKey.Prefabs_Box001_Variant_1_prefab, (GF.Asset.AssetKey key, UnityEngine.Object tmpObj) =>
+   //             {
+   //                 obj = tmpObj as GameObject;
+   //                 Debug.Log("Instantiate GameObject Success!");
+   //             }, new GF.Asset.InstantiateBasicData() { IsWorldSpace = false, Parent = this.transform, Position = Vector3.one });
+
+   //         }
+
+
+			//if (Input.GetKeyDown(KeyCode.D))
+			//{
+			//	Kernel.AssetManager.ReleaseGameObjectAsync(obj);
+			//}
 		}
 
 		private void OnReceivedPackage(ArrayPool<byte>.Node obj)

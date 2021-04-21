@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a737e5840db77e44bbefd418a3de4451, type: 3}
   m_Name: E_1_Default
   m_EditorClassIdentifier: 
-  RootPath: Assets/TEST/Prefabs
+  RootPath: Assets/ExampleGames/SlideCube/Prefabs
   AssetCollectionFoldout: 1
   AssetCollectionType: 1
   AssetFilterFoldout: 1
