@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using GF.Common.Data;
 using GF.Core;
@@ -39,7 +40,7 @@ namespace GF.ExampleGames.SlideCube
 
         private ObjectPool<CubeItem> m_CubeItemPool;
         private CubeItem m_TempCubeItem;
-
+        
         public CubeManager()
             : base("CubeManager", (int)BehaviourPriority.GF_Start, BehaviourGroup.Default.ToString())
         {
@@ -67,10 +68,11 @@ namespace GF.ExampleGames.SlideCube
             m_MinSlideDistance = zoomMultiple - 2 == 0? GlobalConfig.ITEM_HALFSLIDEDISTANCE: GlobalConfig.ITEM_HALFSLIDEDISTANCE / (2 * (zoomMultiple - 2));
             m_CameraViewHeight = zoomMultiple * 10;
             Camera.main.transform.position = new Vector3(0, m_CameraViewHeight, 0.5f);
-            Kernel.AssetManager.InstantiateGameObjectAsync(GF.Asset.AssetKey.Prefabs_Box001_prefab, (GF.Asset.AssetKey key, UnityEngine.Object tmpObj) =>
+            Kernel.AssetManager.InstantiateGameObjectAsync((GF.Asset.AssetKey) AssetKey.Prefabs_Box001_prefab, (GF.Asset.AssetKey key, UnityEngine.Object tmpObj) =>
             {
                 m_CubePrefab = tmpObj as GameObject;
-                InitCubus(m_CubePrefab);
+                m_CubePrefab.AddComponent<BoxCollider>();
+                InitCubes(m_CubePrefab);
             
             });
 
@@ -82,7 +84,7 @@ namespace GF.ExampleGames.SlideCube
         /// <param name="prefabCube"></param>
         /// <param name="row"></param>
         /// <param name="colomn"></param>
-        private void InitCubus(UnityEngine.GameObject prefabCube)
+        private void InitCubes(UnityEngine.GameObject prefabCube)
         {
             Vector3 firstCubePosition = new Vector3(-GlobalConfig.ITEM_SIZE*0.5f*(m_Colomn-1), 0, GlobalConfig.ITEM_SIZE*0.5f*(m_Row-1));
             int index = 0;
