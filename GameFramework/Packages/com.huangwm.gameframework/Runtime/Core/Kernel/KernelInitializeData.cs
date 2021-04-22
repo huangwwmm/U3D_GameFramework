@@ -94,12 +94,49 @@ namespace GF.Core
         /// </summary>
         public string BundlePath;
 
-		// TODO 是否可以优化,临时设置Bool，编辑器模式下，直接加载资源，运行时，加载AssetBundle资源
+		
 		public bool UseAssetBundle;
 
-        #endregion
+		#endregion
 
-        public KernelInitializeData RestoreToDefault()
+
+		#region 初始化下载资源数据
+		/// <summary>
+		/// 服务端资源下载URL
+		/// </summary>
+		public string ServerDownLoadUrl = string.Empty;
+		/// <summary>
+		/// 资源版本文件名称
+		/// </summary>
+		public string AssetVersionFileName = string.Empty;
+		/// <summary>
+		/// 下载超时时间
+		/// </summary>
+		public int DownloadTimeOut;
+		/// <summary>
+		/// 下载最大协程数
+		/// </summary>
+		public int DownloadMaxRoutineCount;
+		/// <summary>
+		/// 资源初始化标语
+		/// </summary>
+		public string InitStateTitle = string.Empty;
+		/// <summary>
+		/// 资源检查更新标语
+		/// </summary>
+		public string CheckUpdateStateTitle = string.Empty;
+		/// <summary>
+		/// 正在下载更新中标语
+		/// </summary>
+		public string UpdatingStateTitle = string.Empty;
+		/// <summary>
+		/// 下载完成标语
+		/// </summary>
+		public string UpdateFinishTitle = string.Empty;
+
+		#endregion
+
+		public KernelInitializeData RestoreToDefault()
         {
             EventTypes = null;
 
@@ -114,7 +151,6 @@ namespace GF.Core
             LoadLuaByAssetDatabaseWhenEditor = false;
 #endif
 
-
 #if UNITY_EDITOR
 			UseAssetBundle = false;
 #else
@@ -127,11 +163,21 @@ namespace GF.Core
             // HACK just testAssetBundle;
 			//todo,Editor,runtime  两种方式获取，先写死测试 默认Editor
 			//todo 根据不同平台，设置不同路径例如Windows/AssetBundles, Android/AssetBundles
-            BundleMapFile = UnityEngine.Application.dataPath + "/../../ExampleGame/SlideCube/Editor/Build/BundleInfos.json";
-            BundlePath = UnityEngine.Application.dataPath + "/../../ExampleGame/SlideCube/Editor//Build/StandaloneWindows64/AssetBundles";
-            AssetInfosFile = UnityEngine.Application.dataPath+"/../../ExampleGame/SlideCube/Editor/Build/AssetInfos.json";
+            BundleMapFile = UnityEngine.Application.dataPath + "/../Build/BundleInfos.json";
+            BundlePath = UnityEngine.Application.dataPath + "/../Build/Windows/AssetBundles";
+            AssetInfosFile = UnityEngine.Application.dataPath+ "/../Build/Windows/AssetInfos.json";
 
-            return this;
+
+			DownloadTimeOut = 5;
+			DownloadMaxRoutineCount = 5;
+			InitStateTitle = "正在初始化资源，不消耗流量~~~";
+			CheckUpdateStateTitle = "正在检查更新中~~~";
+			UpdatingStateTitle = "更新中,总共{0}个，已完成第{1}个，请稍后~~~";
+			UpdateFinishTitle = "全部资源更新完成~~~~";
+
+			ServerDownLoadUrl = @"http://192.168.137.2:8081/";
+			AssetVersionFileName = @"AssetVersionFile.txt";
+			return this;
         }
     }
 }
