@@ -34,7 +34,7 @@ namespace Test.Game
             kernelInitializeData.LoadLuaByAssetDatabaseWhenEditor = true;
 #endif
 
-            yield return Kernel.Initialize(kernelInitializeData);
+            yield return Kernel.Initialize(this,kernelInitializeData);
 
 			Kernel.EventCenter.AddListen((int)EventName.EventA, OnEventA);
 			Kernel.EventCenter.SendImmediately((int)EventName.EventA, Kernel.EventCenter.GetUserData<EventAUserData>());
