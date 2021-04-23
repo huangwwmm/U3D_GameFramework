@@ -9,6 +9,7 @@ using UnityEngine;
 using GF.Core.Lua;
 using GF.Core.Entity;
 using GF.Asset;
+using GF.UI;
 
 namespace GF.Core
 {
@@ -23,6 +24,7 @@ namespace GF.Core
         public static BehaviourManager BehaviourManager;
         public static EntityManager EntityManager;
 
+        public static UIManager UiManager;
         private static bool ms_IsInitialized = false;
 
 		public static MonoBehaviour Mono;
@@ -68,6 +70,9 @@ namespace GF.Core
 			//TempAssetInitManager
 			AssetInitManager = new TempAssetInitManager();
 			yield return AssetInitManager.InitializeAsync(initializeData);
+			
+			UiManager = new UIManager();
+			yield return null;
 
 #region Initialize Packages
             List<Common.Utility.ReflectionUtility.MethodAndAttributeData> initializePackages = new List<Common.Utility.ReflectionUtility.MethodAndAttributeData>();
