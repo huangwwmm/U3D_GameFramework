@@ -54,7 +54,7 @@ namespace FairyGUI.VFairyGUI.Editor
                     }
                 }
                 fairyGuiWindowInfo.WindowNames = list;
-                if (packageName.StartsWith("Resources"))
+                if (packageName.StartsWith(ConstData.ResPackagePrefix))
                 {
                     fairyGuiWindowInfo.fairyGuiWindowType = FairyGUIWindowTypes.Resource;
                 }
