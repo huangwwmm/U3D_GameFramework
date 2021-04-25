@@ -1,0 +1,11 @@
+ManifestFileVersion: 0
+CRC: 242962905
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: prefabs_box001_prefab
+      Dependencies:
+        Dependency_0: prefabs_box001_fbx
+    Info_1:
+      Name: prefabs_box001_fbx
+      Dependencies: {}

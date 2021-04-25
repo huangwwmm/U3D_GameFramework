@@ -27,6 +27,9 @@ namespace GF.ExampleGames.SlideCube
         {
             DontDestroyOnLoad(this);
             KernelInitializeData kernelInitializeData = new KernelInitializeData().RestoreToDefault();
+            kernelInitializeData.BundleMapFile = UnityEngine.Application.dataPath + "/../../ExampleGame/SlideCube/Editor/Build/BundleInfos.json";
+            kernelInitializeData.BundlePath = UnityEngine.Application.dataPath + "/../../ExampleGame/SlideCube/Editor//Build/StandaloneWindows64/AssetBundles";
+            kernelInitializeData.AssetInfosFile = UnityEngine.Application.dataPath+"/../../ExampleGame/SlideCube/Editor/Build/AssetInfos.json";
             kernelInitializeData.EventTypes = new List<Type>
             {
                 typeof(SlideEventNames)
@@ -37,7 +40,7 @@ namespace GF.ExampleGames.SlideCube
             kernelInitializeData.LoadLuaByAssetDatabaseWhenEditor = true;
 #endif
 
-            yield return Kernel.Initialize(kernelInitializeData);
+            yield return Kernel.Initialize(this,kernelInitializeData);
             OnStart();
         }
         

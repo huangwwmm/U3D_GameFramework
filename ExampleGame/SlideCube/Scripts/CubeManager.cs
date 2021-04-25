@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using GF.Common.Data;
 using GF.Core;
@@ -10,8 +11,6 @@ namespace GF.ExampleGames.SlideCube
 {
     public class CubeManager : BaseBehaviour
     {
-        private float m_OriginX, m_OriginY = 0;
-        private int m_CenterX, m_CenterY = 0;
         private int m_Row, m_Colomn = -1;
         private int m_CameraViewHeight = 20;
 
@@ -26,14 +25,22 @@ namespace GF.ExampleGames.SlideCube
         private Vector3 m_SlideDirection = Vector3.zero;
         private List<UnityEngine.Transform> m_SlideTransforms;
         private List<Vector3> m_SlideOriginPositions;
-        private float m_SlideSpeed = 1;
         private bool m_CanSlide = false;
+        private bool m_CanFirstTransformSlide = false;
+        private bool m_CanOtherTransformSlide = false;
+        private bool m_CanLastTransformSlide = false;
+        private bool m_FirstSlideDone = false;
+        private float m_FirstPercent = 0;
         private float m_Percent = 0;
+        private float m_LastPercent = 0;
         private float m_MinSlideDistance = 0;
+        private UnityEngine.Transform m_EdgeCubeItem;
+        private Vector3 m_OldEdgeOriginPositon;
+        private Vector3 m_NewEdgeOriginPositon;
 
         private ObjectPool<CubeItem> m_CubeItemPool;
         private CubeItem m_TempCubeItem;
-
+        
         public CubeManager()
             : base("CubeManager", (int)BehaviourPriority.GF_Start, BehaviourGroup.Default.ToString())
         {
@@ -51,6 +58,7 @@ namespace GF.ExampleGames.SlideCube
         {
             if (row < 2 || colomn < 2)
                 return;
+            ClearCubeContainer();
             m_CubeItems.Clear();
             m_TargetList.Clear();
             m_Row = row;
@@ -60,11 +68,12 @@ namespace GF.ExampleGames.SlideCube
             m_MinSlideDistance = zoomMultiple - 2 == 0? GlobalConfig.ITEM_HALFSLIDEDISTANCE: GlobalConfig.ITEM_HALFSLIDEDISTANCE / (2 * (zoomMultiple - 2));
             m_CameraViewHeight = zoomMultiple * 10;
             Camera.main.transform.position = new Vector3(0, m_CameraViewHeight, 0.5f);
-            Kernel.AssetManager.InstantiateGameObjectAsync(GF.Asset.AssetKey.Prefabs_Box001_prefab, (GF.Asset.AssetKey key, UnityEngine.Object tmpObj) =>
+            Kernel.AssetManager.InstantiateGameObjectAsync((GF.Asset.AssetKey) AssetKey.Prefabs_Box001_prefab, (GF.Asset.AssetKey key, UnityEngine.Object tmpObj) =>
             {
                 m_CubePrefab = tmpObj as GameObject;
-                InitCubus(m_CubePrefab);
-
+                m_CubePrefab.AddComponent<BoxCollider>();
+                InitCubes(m_CubePrefab);
+            
             });
 
         }
@@ -75,21 +84,16 @@ namespace GF.ExampleGames.SlideCube
         /// <param name="prefabCube"></param>
         /// <param name="row"></param>
         /// <param name="colomn"></param>
-        private void InitCubus(UnityEngine.GameObject prefabCube)
+        private void InitCubes(UnityEngine.GameObject prefabCube)
         {
-            m_CenterX = m_Row % 2 == 0 ? m_Row - 1 : (int)(m_Row * 0.5f);
-            m_CenterY = m_Colomn % 2 == 0 ? m_Colomn - 1 : (int)(m_Colomn * 0.5f);
-            m_OriginX = m_Row % 2 == 0 ? -(GlobalConfig.ITEM_SIZE * 0.5f) : -GlobalConfig.ITEM_SIZE;
-            m_OriginY = m_Colomn % 2 == 0 ? GlobalConfig.ITEM_SIZE * 0.5f : GlobalConfig.ITEM_SIZE;
-            
-            Vector3 centerPosition = new Vector3(m_OriginX * m_CenterX, 0, m_OriginY * m_CenterY);
+            Vector3 firstCubePosition = new Vector3(-GlobalConfig.ITEM_SIZE*0.5f*(m_Colomn-1), 0, GlobalConfig.ITEM_SIZE*0.5f*(m_Row-1));
             int index = 0;
-            for (int i = 0; i < m_Colomn; i++)
+            for (int i = 0; i < m_Row; i++)
             {
-                for (int j = 0; j < m_Row; j++)
+                for (int j = 0; j < m_Colomn; j++)
                 {
-                    Vector3 initPosition = new Vector3(centerPosition.x + GlobalConfig.ITEM_SIZE * j, 0,
-                        centerPosition.z - GlobalConfig.ITEM_SIZE * i);
+                    Vector3 initPosition = new Vector3(firstCubePosition.x + GlobalConfig.ITEM_SIZE * j, 0,
+                        firstCubePosition.z - GlobalConfig.ITEM_SIZE * i);
                     GameObject cube = UnityEngine.GameObject.Instantiate(prefabCube, initPosition, Quaternion.identity);
                     cube.transform.SetParent(m_CubeContainer);
                     cube.name = $"CubeItem{index}";
@@ -115,6 +119,10 @@ namespace GF.ExampleGames.SlideCube
         /// <param name="data"></param>
         private void OnCubeSlide(int eventId, bool isImmediately, IUserData data)
         {
+            if (m_CanSlide)
+            {
+                return;
+            }
             SlideData slideData = (SlideData)data;
             if (CheckSlideCondition(slideData.startPosition, slideData.endPosition))
             {
@@ -183,7 +191,7 @@ namespace GF.ExampleGames.SlideCube
         }
 
         /// <summary>
-        /// 获取当前射线检测Cube
+        /// 获取当前射线检测CubeItem
         /// </summary>
         /// <param name="transform"></param>
         /// <returns></returns>
@@ -231,30 +239,66 @@ namespace GF.ExampleGames.SlideCube
 
         public override void OnUpdate(float deltaTime)
         {
+            #region SlideAnimation
             if (m_CanSlide)
             {
-                if (m_SlideTransforms.Count == 0 || m_SlideDirection == Vector3.zero)
+                if (m_SlideTransforms.Count==0|| m_SlideDirection==Vector3.zero)
                 {
                     return;
                 }
 
-                if (m_Percent < 1)
+                int count = m_SlideTransforms.Count;
+                if (m_FirstPercent<1)
                 {
-                    m_Percent += Time.deltaTime / GlobalConfig.ANIMATION_MOVETIME;
-                    for (int i = 0; i < m_SlideTransforms.Count; i++)
-                    {
-                        m_SlideTransforms[i].localPosition = m_SlideOriginPositions[i] + m_SlideSpeed * m_SlideDirection * GameEnter.Instance.Curve.Evaluate(m_Percent) * GlobalConfig.ITEM_SIZE;
-                    }
+                    m_FirstPercent += Time.deltaTime / GlobalConfig.ANIMATION_SLIDETIME;
+                    m_EdgeCubeItem.localPosition = m_OldEdgeOriginPositon + GlobalConfig.SLIDE_SPEED * m_SlideDirection * GameEnter.Instance.Curve.Evaluate(m_FirstPercent) * GlobalConfig.ITEM_SIZE;
                 }
                 else
                 {
-                    m_CanSlide = false;
-                    m_Percent = 0;
-                    CheckFinish();
+                    if (m_Percent<1)
+                    {
+                        if (m_EdgeCubeItem.gameObject.activeSelf)
+                        {
+                            m_EdgeCubeItem.gameObject.SetActive(false);
+                        }
+                        
+                        m_Percent += Time.deltaTime / GlobalConfig.ANIMATION_SLIDETIME;
+                        for (int i = 0; i < count; i++)
+                        {
+                            if (m_SlideTransforms[i]==m_EdgeCubeItem)
+                            {
+                                continue;
+                            }
+                            m_SlideTransforms[i].localPosition = m_SlideOriginPositions[i] + GlobalConfig.SLIDE_SPEED * m_SlideDirection * GameEnter.Instance.Curve.Evaluate(m_Percent) * GlobalConfig.ITEM_SIZE;
+                        }
+                    }
+                    else
+                    {
+                        if (!m_EdgeCubeItem.gameObject.activeSelf)
+                        {
+                            m_EdgeCubeItem.gameObject.SetActive(true);
+                        }
+                        if (m_LastPercent<1)
+                        {
+                            m_LastPercent += Time.deltaTime / GlobalConfig.ANIMATION_SLIDETIME;
+                            m_EdgeCubeItem.localPosition = m_NewEdgeOriginPositon + GlobalConfig.SLIDE_SPEED * m_SlideDirection * GameEnter.Instance.Curve.Evaluate(m_LastPercent) * GlobalConfig.ITEM_SIZE;
+                        }
+                        else
+                        {
+                            m_CanSlide = false;
+                            m_FirstPercent = 0;
+                            m_Percent = 0;
+                            m_LastPercent = 0;
+                            CheckFinish();
+                        }
+                    }
                 }
             }
+            #endregion
 
         }
+
+        #region 执行方向行列计算
 
         private void DoLeftOrder(List<CubeItem> cubeItems)
         {
@@ -262,13 +306,23 @@ namespace GF.ExampleGames.SlideCube
             {
                 return;
             }
-            for (int i = 0; i < cubeItems.Count; i++)
+            int count = cubeItems.Count;
+            for (int i = 0; i < count; i++)
             {
-                cubeItems[i].BelongColomn = (cubeItems[i].BelongColomn - 1) < 0 ? m_Colomn - 1 : (cubeItems[i].BelongColomn - 1);
+                if ((cubeItems[i].BelongColomn - 1) < 0)
+                {
+                    cubeItems[i].BelongColomn = m_Colomn - 1;
+                    m_EdgeCubeItem = cubeItems[i].Transform;
+                    m_OldEdgeOriginPositon = m_EdgeCubeItem.position;
+                }
+                else
+                {
+                    cubeItems[i].BelongColomn = (cubeItems[i].BelongColomn - 1);
+                }
                 m_SlideTransforms.Add(cubeItems[i].Transform);
-                m_SlideOriginPositions.Add(cubeItems[i].GetMoveOriginPosition(Vector3.left, m_FirstPosition, m_LastPosition));
+                m_SlideOriginPositions.Add(cubeItems[i].Transform.position);
+                m_NewEdgeOriginPositon = new Vector3(m_LastPosition.x+GlobalConfig.ITEM_SIZE,0,m_OldEdgeOriginPositon.z);
             }
-
             m_CanSlide = true;
         }
 
@@ -278,11 +332,22 @@ namespace GF.ExampleGames.SlideCube
             {
                 return;
             }
-            for (int i = 0; i < cubeItems.Count; i++)
+            int count = cubeItems.Count;
+            for (int i = 0; i < count; i++)
             {
-                cubeItems[i].BelongColomn = (cubeItems[i].BelongColomn + 1) >= cubeItems.Count ? 0 : (cubeItems[i].BelongColomn + 1);
+                if ((cubeItems[i].BelongColomn + 1) >= count)
+                {
+                    cubeItems[i].BelongColomn = 0;
+                    m_EdgeCubeItem = cubeItems[i].Transform;
+                    m_OldEdgeOriginPositon = m_EdgeCubeItem.position;
+                }
+                else
+                {
+                    cubeItems[i].BelongColomn=(cubeItems[i].BelongColomn + 1);
+                }
                 m_SlideTransforms.Add(cubeItems[i].Transform);
-                m_SlideOriginPositions.Add(cubeItems[i].GetMoveOriginPosition(Vector3.right, m_FirstPosition, m_LastPosition));
+                m_SlideOriginPositions.Add(cubeItems[i].Transform.position);
+                m_NewEdgeOriginPositon = new Vector3(m_FirstPosition.x-GlobalConfig.ITEM_SIZE,0,m_OldEdgeOriginPositon.z);
             }
             m_CanSlide = true;
         }
@@ -293,11 +358,22 @@ namespace GF.ExampleGames.SlideCube
             {
                 return;
             }
-            for (int i = 0; i < cubeItems.Count; i++)
+            int count = cubeItems.Count;
+            for (int i = 0; i < count; i++)
             {
-                cubeItems[i].BelongRow = (cubeItems[i].BelongRow - 1) < 0 ? m_Row - 1 : (cubeItems[i].BelongRow - 1);
+                if ((cubeItems[i].BelongRow - 1) < 0)
+                {
+                    cubeItems[i].BelongRow = m_Row - 1;
+                    m_EdgeCubeItem = cubeItems[i].Transform;
+                    m_OldEdgeOriginPositon = m_EdgeCubeItem.position;
+                }
+                else
+                {
+                    cubeItems[i].BelongRow =cubeItems[i].BelongRow - 1;
+                }
                 m_SlideTransforms.Add(cubeItems[i].Transform);
-                m_SlideOriginPositions.Add(cubeItems[i].GetMoveOriginPosition(Vector3.forward, m_FirstPosition, m_LastPosition));
+                m_SlideOriginPositions.Add(cubeItems[i].Transform.position);
+                m_NewEdgeOriginPositon=new Vector3(m_OldEdgeOriginPositon.x,0,m_LastPosition.z-GlobalConfig.ITEM_SIZE);
             }
             m_CanSlide = true;
         }
@@ -308,19 +384,35 @@ namespace GF.ExampleGames.SlideCube
             {
                 return;
             }
-            for (int i = 0; i < cubeItems.Count; i++)
+            int count = cubeItems.Count;
+            for (int i = 0; i < count; i++)
             {
-                cubeItems[i].BelongRow = (cubeItems[i].BelongRow + 1) >= cubeItems.Count ? 0 : (cubeItems[i].BelongRow + 1);
+                if ((cubeItems[i].BelongRow + 1) >= cubeItems.Count)
+                {
+                    cubeItems[i].BelongRow = 0;
+                    m_EdgeCubeItem = cubeItems[i].Transform;
+                    m_OldEdgeOriginPositon = m_EdgeCubeItem.position;
+                }
+                else
+                {
+                    cubeItems[i].BelongRow=(cubeItems[i].BelongRow + 1);
+                }
                 m_SlideTransforms.Add(cubeItems[i].Transform);
-                m_SlideOriginPositions.Add(cubeItems[i].GetMoveOriginPosition(Vector3.back, m_FirstPosition, m_LastPosition));
+                m_SlideOriginPositions.Add(cubeItems[i].Transform.position);
+                m_NewEdgeOriginPositon=new Vector3(m_OldEdgeOriginPositon.x,0,m_FirstPosition.z+GlobalConfig.ITEM_SIZE);
             }
             m_CanSlide = true;
         }
 
+        #endregion
+
+        #region 获取当前目标行列
+
         private List<CubeItem> GetTargetRowList(CubeItem item)
         {
             List<CubeItem> m_RetList = new List<CubeItem>();
-            for (int i = 0; i < m_CubeItems.Count; i++)
+            int count = m_CubeItems.Count;
+            for (int i = 0; i < count; i++)
             {
                 if (m_CubeItems[i].BelongRow == item.BelongRow)
                     m_RetList.Add(m_CubeItems[i]);
@@ -331,7 +423,8 @@ namespace GF.ExampleGames.SlideCube
         private List<CubeItem> GetTargetColomnList(CubeItem item)
         {
             List<CubeItem> m_RetList = new List<CubeItem>();
-            for (int i = 0; i < m_CubeItems.Count; i++)
+            int count = m_CubeItems.Count;
+            for (int i = 0; i < count; i++)
             {
                 if (m_CubeItems[i].BelongColomn == item.BelongColomn)
                     m_RetList.Add(m_CubeItems[i]);
@@ -339,12 +432,16 @@ namespace GF.ExampleGames.SlideCube
 
             return m_RetList;
         }
+
+        #endregion
+
         
         private void ClearCubeContainer()
         {
             if (m_CubeContainer.childCount>0)
             {
-                for (int i = 0; i < m_CubeContainer.childCount; i++)
+                int childCount = m_CubeContainer.childCount;
+                for (int i = childCount-1; i>=0; i--)
                 {
                     GameObject.Destroy(m_CubeContainer.GetChild(i));
                 }
