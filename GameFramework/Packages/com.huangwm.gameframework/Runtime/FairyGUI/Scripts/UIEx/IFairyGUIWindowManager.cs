@@ -109,85 +109,14 @@ namespace GF.UI
         /// <param name="windowName">加载的窗体，也就是组件的名字，为null的时候，为json中的默认组件,开放此参数是因为一个包里可以有多个组件</param>
         public virtual void OpenWindow(Type fairyGUIWindowType,bool hidePrevious = false,bool unLoadPreviousAsset = false)
     	{
-	     //    FairyGUIBaseWindow bw;
-    		// if (_showWindowStack.Count > 0)
-    		// {
-    		// 	bw = _showWindowStack.Peek();
-    		// 	bw.OnPause();
-      //           if (hidePrevious)
-      //           {
-	     //            bw.Hide();
-      //           }
-      //           else
-      //           {
-	     //            unLoadPreviousAsset = false;
-      //           }
-      //           if (unLoadPreviousAsset)
-      //           {
-	     //            _fairyGUIPackageManager.UnloadAssets(bw.FairyGuiWindowInfo.packageName);
-	     //            bw.AssetLoaded = false;
-      //           }
-      //       }
-		    // bw = GetFairyGUIBaseWindow(fairyGUIWindowType);
-		    // if (bw == null)
-		    // {
-			   //  FairyGUIWindowInfo fairyGuiWindowInfo = GetFairyGUIWindowInfo(fairyGUIWindowType);
-			   //  if (fairyGuiWindowInfo == null)
-			   //  {
-				  //   Debug.LogError("要开打的不是窗体，请检查OpenWindow函数的参数是否为FairyGUIBaseWindow的子类并且已在注册表注册！");
-				  //   return;
-			   //  }
-			   //  if (fairyGuiWindowInfo.fairyGuiWindowType == FairyGUIWindowTypes.Window)
-			   //  {
-				  //   _fairyGUIPackageManager.AddPackage(fairyGuiWindowInfo.packagePath,fairyGuiWindowInfo.packageName);
-				  // //  _fairyGUIPackageManager.UnloadAssets(fairyGuiWindowInfo.packageName);
-				  //   Assembly assembly=Assembly.LoadFrom(fairyGUIWindowType.Assembly.Location);
-				  //   Type type = assembly.GetType(fairyGuiWindowInfo.windowName);
-				  //   if (type == null)
-				  //   {
-					 //    Debug.LogError("导入的"+fairyGuiWindowInfo.packageName+"包，并没有为其创建对应脚本文件，请创建"+fairyGuiWindowInfo.windowName+"脚本并继承自FairyGUIBaseWindow。");
-					 //    return;
-				  //   }
-				  //   object obj = type.Assembly.CreateInstance(type.Name);
-				  //   bw = obj as FairyGUIBaseWindow;
-				  //   bw.Copy(fairyGuiWindowInfo);
-				  //   bw.AssetLoaded = true;
-				  //   GComponent view = UIPackage.CreateObject(bw.FairyGuiWindowInfo.packageName, bw.FairyGuiWindowInfo.windowName).asCom;
-				  //   bw.SetWindowView(view);
-				  //   _windowList.Add(bw);
-			   //  }
-			   //  else
-			   //  {
-				  //   Debug.LogError("尝试创建资源包中的组件！资源包中的任何组件都无法被创建。");
-				  //   return;
-			   //  }
-		    // }
-      //
-		    // if (!bw.AssetLoaded)
-		    // {
-			   //  _fairyGUIPackageManager.ReloadAssets(bw.FairyGuiWindowInfo.packageName);
-		    // }
-		    //
-		    // if (!bw.HasOpen)
-		    // {
-			   //  _showWindowStack.Push(bw);
-			   //  bw.HasOpen = true;
-			   //  bw.OnBeforeOpen();
-			   //  bw.OnOpen();
-			   //  bw.Show();
-		    // }
-		    // else
-		    // {
-			   //  bw.OnResume(); 
-			   //  bw.Show();
-		    // }
+	     
     	}
     
         /// <summary>
         /// 暂时隐藏窗体
         /// </summary>
         /// <param name="FairyGUIWindowName">窗体类型枚举</param>
-    	public void HideWindow(Type FairyGUIWindowType,string WindowName = null)
+    	public void HideWindow(Type FairyGUIWindowType,bool unLoadAssets = false)
     	{
     		
 	        FairyGUIBaseWindow bw = GetFairyGUIBaseWindow(FairyGUIWindowType);
@@ -201,14 +130,24 @@ namespace GF.UI
 			    bw = _showWindowStack.Pop();
 			    bw.OnPause();
 			    bw.Hide();
-			    _fairyGUIPackageManager.UnloadAssets(bw.FairyGuiWindowInfo.packageName);
+			    if (unLoadAssets)
+			    {
+				    _fairyGUIPackageManager.UnloadAssets(bw.FairyGuiWindowInfo.packageName);
+				    bw.AssetLoaded = false;
+			    }
+			    
 			    if (bw.Name == FairyGUIWindowType.Name)
 				    break;
 		    }
 		    if (_showWindowStack.Count >= 1)
 		    {
 			    bw = _showWindowStack.Peek();
-			    _fairyGUIPackageManager.ReloadAssets(bw.FairyGuiWindowInfo.packageName);
+			    if (!bw.AssetLoaded)
+			    {
+				    _fairyGUIPackageManager.ReloadAssets(bw.FairyGuiWindowInfo.packageName);
+				    bw.AssetLoaded = true;
+			    }
+			    
 			    bw.OnResume();
 			    bw.Show();
 		    }
