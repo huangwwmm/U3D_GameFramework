@@ -24,7 +24,7 @@ namespace GF.Core
         public static BehaviourManager BehaviourManager;
         public static EntityManager EntityManager;
 
-        public static UIManager UiManager;
+        public static IFairyGUIWindowManager UiManager;
         private static bool ms_IsInitialized = false;
 
 		public static MonoBehaviour Mono;
@@ -71,9 +71,13 @@ namespace GF.Core
 			AssetInitManager = new TempAssetInitManager();
 			yield return AssetInitManager.InitializeAsync(initializeData);
 			
-			UiManager = new UIManager();
-			yield return null;
-
+#if UNITY_EDITOR
+			UiManager = new EditorFairyGUIWindowManager();
+			
+#else
+			UiManager = new FairyGUIWindowManager();
+#endif
+	        yield return null;
 #region Initialize Packages
             List<Common.Utility.ReflectionUtility.MethodAndAttributeData> initializePackages = new List<Common.Utility.ReflectionUtility.MethodAndAttributeData>();
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();

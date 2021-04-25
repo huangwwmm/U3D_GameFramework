@@ -119,6 +119,12 @@ namespace FairyGUI
             _branchIndex = -1;
         }
 
+        public static Dictionary<string, PackageItem> GetPackageItems(string path)
+        {
+            UIPackage pkg = GetByName(path);
+            return pkg._itemsByName;
+        }
+
         /// <summary>
         /// 
         /// </summary>
