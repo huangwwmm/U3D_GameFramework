@@ -10,6 +10,8 @@ namespace GF.Asset
 
 		void LoadAssetAsync(AssetKey assetKey, Action<AssetKey, UnityEngine.Object> callback);
 		void UnloadAssetAsync(UnityEngine.Object asset);
+
+		void LoadAssetBundleForFairyGUIAsync(string assetBundleName, Action<AssetBundle> callback);
 	}
 
 	public struct InstantiateBasicData

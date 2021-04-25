@@ -160,8 +160,13 @@ namespace GFEditor.Asset
 				Resources.UnloadAsset(asset);
 			}
 		}
+
+		public void LoadAssetBundleForFairyGUIAsync(string assetBundleName, Action<AssetBundle> callback)
+		{
+			//do nothing
+		}
 		#endregion
-		
+
 		public override void OnLateUpdate(float deltaTime)
 		{
 			base.OnLateUpdate(deltaTime);
@@ -185,6 +190,7 @@ namespace GFEditor.Asset
 			m_AssetInfos = null;
 
 		}
+
 
 		/// <summary>
 		/// 用于缓存需要实例化GameObject的数据
