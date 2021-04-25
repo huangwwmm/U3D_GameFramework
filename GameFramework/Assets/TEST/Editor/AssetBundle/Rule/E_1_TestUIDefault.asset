@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a737e5840db77e44bbefd418a3de4451, type: 3}
-  m_Name: E_1_Default
+  m_Name: E_1_TestUIDefault
   m_EditorClassIdentifier: 
-  RootPath: Assets/TEST/Prefabs/NewFolder
+  RootPath: Assets/TEST/Prefabs/UITest
   AssetCollectionFoldout: 1
   AssetCollectionType: 1
   AssetFilterFoldout: 1
@@ -20,4 +20,4 @@ MonoBehaviour:
   ExtensionFilterList: []
   BundleNameAndAssetKeyFoldout: 1
   BundleNameFormat: '{p}_{an}_{e}'
-  AssetKeyFormat: '{p}_{an}_{e}'
+  AssetKeyFormat: 

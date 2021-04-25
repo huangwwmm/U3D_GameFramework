@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Text;
 using System.IO;
+using GF.Common.Debug;
 
 namespace GFEditor.Asset.Rule
 {
     public class AssetInfoHelper
     {
-        public string AssetPath;
+		private const string LOG_TAG = "AssetInfoHelper";
+
+		public string AssetPath;
         public string RootPath;
 
         private string m_ParentFolderName;
@@ -29,11 +32,10 @@ namespace GFEditor.Asset.Rule
 
         public string Format(string text)
         {
-            if (string.IsNullOrEmpty(text))
-            {
-                throw new Exception("Format Text 不能为空");
-            }
-
+			if(string.IsNullOrEmpty(text))
+			{
+				MDebug.LogWarning(LOG_TAG,$"Format string IsNullOrEmpty！  AssetPath:{AssetPath},");
+			}
             m_FormatedCache.Clear();
             m_SignCache.Clear();
 

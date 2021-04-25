@@ -49,6 +49,8 @@ namespace GF.Asset
 		/// </summary>
 		private Dictionary<GameObject, UnityEngine.Object> m_GameObjectToAsset;
 
+		private Action<AssetBundle> m_FairyGUICallBack;
+
 		public AssetManager()
              : base("AssetManager", (int)BehaviourPriority.AssetManager, BehaviourGroup.Default.ToString())
         {
@@ -275,6 +277,8 @@ namespace GF.Asset
 			}
 		}
 
+
+
 		/// <summary>
 		/// 卸载资源
 		/// </summary>
@@ -342,7 +346,27 @@ namespace GF.Asset
 			GameObject.Destroy(gameObejct);
 			
 		}
+
+		/// <summary>
+		/// 直接返回指定名称的AssetBundle,除FairyGUI不要使用
+		/// </summary>
+		/// <param name="assetBundleName"></param>
+		/// <param name="callback"></param>
+		public void LoadAssetBundleForFairyGUIAsync(string assetBundleName, Action<AssetBundle> callback)
+		{
+			MDebug.Log(LOG_TAG, $"LoadAssetBundleAsync({assetBundleName})");
+			MDebug.Assert(callback != null, LOG_TAG, "callback != null");
+			m_FairyGUICallBack = callback;
+			string tmpAssetBundlePath = Path.Combine(m_RootBundlePath, assetBundleName);
+			AssetBundle.LoadFromFileAsync(tmpAssetBundlePath).completed += LoadAssetBundleForFairyGUICallBack;
+		}
 		#endregion
+
+		private void LoadAssetBundleForFairyGUICallBack(AsyncOperation asyncOperation)
+		{
+			AssetBundle tmpBundle = (asyncOperation as AssetBundleCreateRequest).assetBundle;
+			m_FairyGUICallBack?.Invoke(tmpBundle);
+		}
 
 		/// <summary>
 		/// 包含Bundle是否需要加载判断，添加资源引用计数，并在尚未加载Bundle时，设置加载完成时回调
