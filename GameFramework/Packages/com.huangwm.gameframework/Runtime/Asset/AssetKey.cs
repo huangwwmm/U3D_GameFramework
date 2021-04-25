@@ -4,8 +4,8 @@ namespace GF.Asset
 	{
 		Prefabs_Box001_FBX,
 		Prefabs_Box001_prefab,
-		Fgui_Teeeesssss_fui_1_bytes,
-		Fgui_Teeeesssss_fui_bytes,
+		TestUI_TestUI_fui_bytes,
+		TestUI2_TestUI2_fui_bytes,
 		_001_startmenu_BG_png,
 		_001_startmenu_btn_关闭1_png,
 		_002_mainmenu_bg_弹框_png,

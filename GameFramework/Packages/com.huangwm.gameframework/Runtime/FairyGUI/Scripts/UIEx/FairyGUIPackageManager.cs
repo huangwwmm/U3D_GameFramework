@@ -40,6 +40,31 @@ namespace GF.UI
                 }
             }
         }
+        
+        /// <summary>
+        /// 加载FairyGUI中的包
+        /// </summary>
+        /// <param name="bundle">bundle</param>
+        /// <param name="packageName">包名</param>
+        public void AddPackage(AssetBundle bundle,string packageName)
+        {
+            if (CheckPackageHaveAdd(packageName) == false)
+            {
+                try
+                {
+                    UIPackage.AddPackage(bundle);
+                    _packageAddDict.Add(packageName, true);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("无法加载"+packageName+"包，请检查在"+bundle.name+":"+e);
+#if UNITY_EDITOR
+                    UnityEditor.EditorApplication.isPlaying = false;
+#endif
+                    return;
+                }
+            }
+        }
 
         /// <summary>
         /// 检查FairyGUI中的包是否已经加载
@@ -49,6 +74,15 @@ namespace GF.UI
         public bool CheckPackageHaveAdd(string packagePath,string packageName)
         {
             return _packageAddDict.ContainsKey(packagePath+packageName);
+        }
+        
+        /// <summary>
+        /// 检查FairyGUI中的包是否已经加载
+        /// </summary>
+        /// <param name="packageName">包名</param>
+        public bool CheckPackageHaveAdd(string packageName)
+        {
+            return _packageAddDict.ContainsKey(packageName);
         }
 
         /// <summary>
