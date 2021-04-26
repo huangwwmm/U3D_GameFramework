@@ -15,7 +15,7 @@ namespace GF.UI
 	    /// <summary>
 	    /// 注释见父类
 	    /// </summary>
-	    public override void OpenWindow(Type fairyGUIWindowType,bool hidePrevious = false,bool unLoadPreviousAsset = false)
+	    public override void OpenWindow(Type fairyGUIWindowType,object sourceData)
     	{
 	        FairyGUIBaseWindow bw;
 
@@ -62,7 +62,7 @@ namespace GF.UI
 			    _windowList.Add(bw);
 		    }
 
-		    AfterOpenWindow(bw);
+		    AfterOpenWindow(bw,sourceData);
 
         }
 

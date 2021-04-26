@@ -38,7 +38,7 @@ namespace GF.UI
         
         private void OnStart()
         {
-            Kernel.UiManager.OpenWindow(typeof(Main));
+            Kernel.UiManager.OpenWindow(typeof(Main),null);
             //Kernel.UiManager.PushPanel(AssetKey.Fgui_Teeeesssss_fui_bytes);
             // TextAsset asset = (TextAsset)AssetDatabase.LoadAssetAtPath("Assets/UI_Test/Res/Fgui/Teeeesssss_fui.bytes",typeof(TextAsset));
             //  UIPackage.AddPackage("Assets/UI_Test/Res/Fgui/Teeeesssss");

@@ -17,7 +17,7 @@ namespace GF.UI
 		/// <summary>
 		/// 注释见父类
 		/// </summary>
-		public override void OpenWindow(Type fairyGUIWindowType,bool hidePrevious = false,bool unLoadPreviousAsset = false)
+		public override void OpenWindow(Type fairyGUIWindowType,object sourceData)
     	{
 	        FairyGUIBaseWindow bw;
 	        bw = GetFairyGUIBaseWindow(fairyGUIWindowType);
@@ -36,12 +36,12 @@ namespace GF.UI
 					    Kernel.AssetManager.LoadAssetBundleForFairyGUIAsync(fairyGuiWindowInfo.packageName, (ab) =>
 					    {
 						    _fairyGUIPackageManager.AddPackage(ab,fairyGuiWindowInfo.packageName);
-						    AfterLoadAssetBundle(fairyGUIWindowType,bw,fairyGuiWindowInfo);
+						    AfterLoadAssetBundle(fairyGUIWindowType,bw,fairyGuiWindowInfo,sourceData);
 					    });
 				    }
 				    else
 				    {
-					    AfterLoadAssetBundle(fairyGUIWindowType,bw,fairyGuiWindowInfo);
+					    AfterLoadAssetBundle(fairyGUIWindowType,bw,fairyGuiWindowInfo,sourceData);
 				    }
 			    }
 			    else
@@ -52,11 +52,11 @@ namespace GF.UI
 		    }
 		    else
 		    {
-			    AfterOpenWindow(bw);
+			    AfterOpenWindow(bw,sourceData);
 		    }
         }
 
-		private void AfterLoadAssetBundle(Type fairyGUIWindowType,FairyGUIBaseWindow bw,FairyGUIWindowInfo fairyGuiWindowInfo)
+		private void AfterLoadAssetBundle(Type fairyGUIWindowType,FairyGUIBaseWindow bw,FairyGUIWindowInfo fairyGuiWindowInfo,object sourceData)
 		{
 			string windowName = fairyGUIWindowType.Name;
 			string typeName = fairyGUIWindowType.FullName;
@@ -76,7 +76,7 @@ namespace GF.UI
 			bw.SetWindowView(view);
 			_windowList.Add(bw);
 			bw.Init();
-			AfterOpenWindow(bw);
+			AfterOpenWindow(bw,sourceData);
 		}
 
     }

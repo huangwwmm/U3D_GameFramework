@@ -1,5 +1,6 @@
 ﻿using FairyGUI;
 using GF.Core;
+using UnityEngine;
 
 namespace GF.UI
 {
@@ -14,7 +15,7 @@ namespace GF.UI
         private string m_name;
         #endregion
 
-        #region 属性
+        #region 属性,子类界面不需要访问
 
         /// <summary>
         /// 界面是否打开
@@ -48,7 +49,7 @@ namespace GF.UI
 
         #endregion
 
-        #region 方法
+        #region 方法，子类界面不需要访问
         /// <summary>
         /// 为windowInfo赋值
         /// </summary>
@@ -67,37 +68,36 @@ namespace GF.UI
         {
             this.contentPane = view;
         }
+        
+        #endregion
 
+
+        #region 子类界面只需要重写这几个方法即可
         /// <summary>
         /// 第一次创建界面实例，用来获取需要操控的组件
         /// </summary>
         public abstract void Init();
 
         /// <summary>
-        /// 创建成功 主要用于逻辑注册,最后调用Show()方法
+        /// 打开界面，主要用于逻辑注册事件，根据传入的数据初始化界面
         /// </summary>
-        public abstract void OnOpen();
+        public abstract void OnOpen(object obj);
 
         /// <summary>
-        /// 当在该界面上再打开界面时,暂停该界面
+        /// 暂停该界面,不隐藏
         /// </summary>
         /// 
         public abstract void OnPause();
 
         /// <summary>
-        /// 当在关闭该界面上打开的界面时,恢复该界面
+        /// 恢复隐藏的界面
         /// </summary>
         public abstract void OnResume();
 
         /// <summary>
-        /// 界面关闭,最后调用Hide()方法并将this.contentPane销毁
+        /// 界面关闭，需要销毁注册的事件
         /// </summary>
         public abstract void OnClose();
-        
-        protected void Close()
-        {
-            Hide();
-        }
 
         #endregion
 

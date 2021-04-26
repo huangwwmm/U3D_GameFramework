@@ -19,11 +19,11 @@ namespace GF.UI
             {
  
                 Kernel.UiManager.HideWindow(GetType(),false);
-                Kernel.UiManager.OpenWindow(typeof(Boss));
+                Kernel.UiManager.OpenWindow(typeof(Boss),null);
             });
         }
 
-        public override void OnOpen()
+        public override void OnOpen(object obj)
         {
         
         }
@@ -41,7 +41,7 @@ namespace GF.UI
 
         public override void OnClose()
         {
-            Close();
+           
         }
     }
 

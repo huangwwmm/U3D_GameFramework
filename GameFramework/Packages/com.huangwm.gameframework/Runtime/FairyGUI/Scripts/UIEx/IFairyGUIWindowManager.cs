@@ -101,18 +101,17 @@ namespace GF.UI
 	        return null;
         }
     	
+       
         /// 显示窗体
         /// </summary>
         /// <param name="FairyGUIWindowName">窗体类型枚举</param>
-        /// <param name="hidePrevious">隐藏上一个？</param>
-        /// <param name="unLoadPreviousAsset">卸载上一个界面的资源，hidePrevious = false，unLoadPreviousAsset = false，尽量设置为flase，重新加载会消耗资源</param>
-        /// <param name="windowName">加载的窗体，也就是组件的名字，为null的时候，为json中的默认组件,开放此参数是因为一个包里可以有多个组件</param>
-        public virtual void OpenWindow(Type fairyGUIWindowType,bool hidePrevious = false,bool unLoadPreviousAsset = false)
+        /// <param name="obj">需要传入的界面数据</param>
+        public virtual void OpenWindow(Type fairyGUIWindowType,object sourceData)
     	{
 	     
     	}
         
-        protected void AfterOpenWindow(FairyGUIBaseWindow bw)
+        protected void AfterOpenWindow(FairyGUIBaseWindow bw,object sourceData)
         {
 	        if (!bw.AssetLoaded)
 	        {
@@ -123,7 +122,7 @@ namespace GF.UI
 	        {
 		        _showWindowList.AddLast(bw);
 		        bw.HasOpen = true;
-		        bw.OnOpen();
+		        bw.OnOpen(sourceData);
 		        bw.Show();
 	        }
 	        else
@@ -161,6 +160,7 @@ namespace GF.UI
 		        if (isHide)
 		        {
 			        bw.OnClose();
+			        bw.Hide();
 			        bw.HasOpen = false;
 			        _showWindowList.Remove(bw);
 		        }
@@ -190,7 +190,8 @@ namespace GF.UI
 			while (bw != null)
 			{
 				view = bw.Value;
-				 view.OnClose();
+				view.OnClose();
+				view.Hide();
 				bw = bw.Next;
 			}
 		    _showWindowList.Clear();

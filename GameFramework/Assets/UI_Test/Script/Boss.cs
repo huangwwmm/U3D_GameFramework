@@ -15,7 +15,7 @@ namespace GF.UI
             t4 = contentPane.GetTransition("t4");
         }
 
-        public override void OnOpen()
+        public override void OnOpen(object obj)
         {
             Play_Transition();
         }
@@ -32,7 +32,7 @@ namespace GF.UI
 
         public override void OnClose()
         {
-            Close();
+           
         }
 
         private void Play_Transition()
@@ -40,7 +40,7 @@ namespace GF.UI
             t4.Play(() =>
             {
                 Kernel.UiManager.HideWindow(typeof(Boss));
-                Kernel.UiManager.OpenWindow(typeof(Main));
+                Kernel.UiManager.OpenWindow(typeof(Main),null);
             });
         }
     }
