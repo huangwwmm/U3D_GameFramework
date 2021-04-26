@@ -20,25 +20,7 @@ namespace GF.UI
 		public override void OpenWindow(Type fairyGUIWindowType,bool hidePrevious = false,bool unLoadPreviousAsset = false)
     	{
 	        FairyGUIBaseWindow bw;
-    		if (_showWindowStack.Count > 0)
-    		{
-    			bw = _showWindowStack.Peek();
-    			bw.OnPause();
-                if (hidePrevious)
-                {
-	                bw.Hide();
-                }
-                else
-                {
-	                unLoadPreviousAsset = false;
-                }
-                if (unLoadPreviousAsset)
-                {
-	                _fairyGUIPackageManager.UnloadAssets(bw.FairyGuiWindowInfo.packageName);
-	                bw.AssetLoaded = false;
-                }
-            }
-		    bw = GetFairyGUIBaseWindow(fairyGUIWindowType);
+	        bw = GetFairyGUIBaseWindow(fairyGUIWindowType);
 		    if (bw == null)
 		    {
 			    FairyGUIWindowInfo fairyGuiWindowInfo = GetFairyGUIWindowInfo(fairyGUIWindowType);
@@ -49,28 +31,18 @@ namespace GF.UI
 			    }
 			    if (fairyGuiWindowInfo.fairyGuiWindowType == FairyGUIWindowTypes.Window)
 			    {
-				   Kernel.AssetManager.LoadAssetBundleForFairyGUIAsync(fairyGuiWindowInfo.packageName, (ab) =>
-				   {
-					   string windowName = fairyGUIWindowType.Name;
-					   _fairyGUIPackageManager.AddPackage(ab,fairyGuiWindowInfo.packageName);
-					   Assembly assembly=Assembly.LoadFrom(fairyGUIWindowType.Assembly.Location);
-					   Type type = assembly.GetType(windowName);
-					   if (type == null)
-					   {
-						   Debug.LogError("导入的"+fairyGuiWindowInfo.packageName+"包，并没有为其创建对应脚本文件，请创建"+windowName+"脚本并继承自FairyGUIBaseWindow。");
-						   return;
-					   }
-					   object obj = type.Assembly.CreateInstance(type.Name);
-					   bw = obj as FairyGUIBaseWindow;
-					   bw.Copy(fairyGuiWindowInfo);
-					   bw.AssetLoaded = true;
-					   bw.Name = windowName;
-					   GComponent view = UIPackage.CreateObject(bw.FairyGuiWindowInfo.packageName, windowName).asCom;
-					   bw.SetWindowView(view);
-					   _windowList.Add(bw);
-					   AfterOpenWindow(bw);
-				   });
-				   
+				    if (!_fairyGUIPackageManager.CheckPackageHaveAdd(fairyGuiWindowInfo.packageName))
+				    {
+					    Kernel.AssetManager.LoadAssetBundleForFairyGUIAsync(fairyGuiWindowInfo.packageName, (ab) =>
+					    {
+						    _fairyGUIPackageManager.AddPackage(ab,fairyGuiWindowInfo.packageName);
+						    AfterLoadAssetBundle(fairyGUIWindowType,bw,fairyGuiWindowInfo);
+					    });
+				    }
+				    else
+				    {
+					    AfterLoadAssetBundle(fairyGUIWindowType,bw,fairyGuiWindowInfo);
+				    }
 			    }
 			    else
 			    {
@@ -84,27 +56,28 @@ namespace GF.UI
 		    }
         }
 
-	    private void AfterOpenWindow(FairyGUIBaseWindow bw)
-	    {
-		    if (!bw.AssetLoaded)
-		    {
-			    _fairyGUIPackageManager.ReloadAssets(bw.FairyGuiWindowInfo.packageName);
-		    }
-		    
-		    if (!bw.HasOpen)
-		    {
-			    _showWindowStack.Push(bw);
-			    bw.HasOpen = true;
-			    bw.OnBeforeOpen();
-			    bw.OnOpen();
-			    bw.Show();
-		    }
-		    else
-		    {
-			    bw.OnResume(); 
-			    bw.Show();
-		    }
-	    }
+		private void AfterLoadAssetBundle(Type fairyGUIWindowType,FairyGUIBaseWindow bw,FairyGUIWindowInfo fairyGuiWindowInfo)
+		{
+			string windowName = fairyGUIWindowType.Name;
+			string typeName = fairyGUIWindowType.FullName;
+			Assembly assembly=Assembly.LoadFrom(fairyGUIWindowType.Assembly.Location);
+			Type type = assembly.GetType(typeName);
+			if (type == null)
+			{
+				Debug.LogError("导入的"+fairyGuiWindowInfo.packageName+"包，并没有为其创建对应脚本文件，请创建"+windowName+"脚本并继承自FairyGUIBaseWindow。");
+				return;
+			}
+			object obj = type.Assembly.CreateInstance(typeName);
+			bw = obj as FairyGUIBaseWindow;
+			bw.Copy(fairyGuiWindowInfo);
+			bw.AssetLoaded = true;
+			bw.Name = windowName;
+			GComponent view = UIPackage.CreateObject(bw.FairyGuiWindowInfo.packageName, windowName).asCom;
+			bw.SetWindowView(view);
+			_windowList.Add(bw);
+			bw.Init();
+			AfterOpenWindow(bw);
+		}
 
     }
 }

@@ -1,4 +1,5 @@
 ﻿using FairyGUI;
+using GF.Core;
 
 namespace GF.UI
 {
@@ -48,7 +49,6 @@ namespace GF.UI
         #endregion
 
         #region 方法
-
         /// <summary>
         /// 为windowInfo赋值
         /// </summary>
@@ -69,9 +69,9 @@ namespace GF.UI
         }
 
         /// <summary>
-        /// 创建前期 主要用于寻找view上的组件
+        /// 第一次创建界面实例，用来获取需要操控的组件
         /// </summary>
-        public abstract void OnBeforeOpen();
+        public abstract void Init();
 
         /// <summary>
         /// 创建成功 主要用于逻辑注册,最后调用Show()方法
@@ -89,12 +89,15 @@ namespace GF.UI
         /// </summary>
         public abstract void OnResume();
 
-        public abstract void OnBeforeClose();
-
         /// <summary>
         /// 界面关闭,最后调用Hide()方法并将this.contentPane销毁
         /// </summary>
         public abstract void OnClose();
+        
+        protected void Close()
+        {
+            Hide();
+        }
 
         #endregion
 

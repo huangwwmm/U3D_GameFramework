@@ -18,26 +18,8 @@ namespace GF.UI
 	    public override void OpenWindow(Type fairyGUIWindowType,bool hidePrevious = false,bool unLoadPreviousAsset = false)
     	{
 	        FairyGUIBaseWindow bw;
-    		if (_showWindowStack.Count > 0)
-    		{
-    			bw = _showWindowStack.Peek();
-    			bw.OnPause();
-                if (hidePrevious)
-                {
-	                bw.Hide();
-                }
-                else
-                {
-	                unLoadPreviousAsset = false;
-                }
-                if (unLoadPreviousAsset)
-                {
-	                _fairyGUIPackageManager.UnloadAssets(bw.FairyGuiWindowInfo.packageName);
-	                bw.AssetLoaded = false;
-                }
-            }
-      
-		    bw = GetFairyGUIBaseWindow(fairyGUIWindowType);
+
+	        bw = GetFairyGUIBaseWindow(fairyGUIWindowType);
 		    if (bw == null)
 		    {
 			    //查看ui信息是否存在，信息存在，也就是包会存在，后续可以加载
@@ -62,42 +44,27 @@ namespace GF.UI
 			    //加载脚本
 			    Assembly assembly=Assembly.LoadFrom(fairyGUIWindowType.Assembly.Location);
 			    string windowName = fairyGUIWindowType.Name;
-			    Type type = assembly.GetType(windowName);
+			    string typeName = fairyGUIWindowType.FullName;
+			    Type type = assembly.GetType(typeName);
 			    if (type == null)
 			    {
 				    Debug.LogError("导入的"+fairyGuiWindowInfo.packageName+"包，并没有为其创建对应脚本文件，请创建"+windowName+"脚本并继承自FairyGUIBaseWindow。");
 				    return;
 			    }
-			    object obj = type.Assembly.CreateInstance(type.Name);
+			    object obj = type.Assembly.CreateInstance(typeName);
 			    bw = obj as FairyGUIBaseWindow;
 			    bw.Copy(fairyGuiWindowInfo);
 			    bw.AssetLoaded = true;
 			    bw.Name = windowName;
 			    GComponent view = UIPackage.CreateObject(bw.FairyGuiWindowInfo.packageName, windowName).asCom;
 			    bw.SetWindowView(view);
+			    bw.Init();
 			    _windowList.Add(bw);
 		    }
-      
-		    if (!bw.AssetLoaded)
-		    {
-			    _fairyGUIPackageManager.ReloadAssets(bw.FairyGuiWindowInfo.packageName);
-		    }
-		    
-		    //加载完，需要设置显示
-		    if (!bw.HasOpen)
-		    {
-			    _showWindowStack.Push(bw);
-			    bw.HasOpen = true;
-			    bw.OnBeforeOpen();
-			    bw.OnOpen();
-			    bw.Show();
-		    }
-		    else
-		    {
-			    bw.OnResume(); 
-			    bw.Show();
-		    }
-    	}
+
+		    AfterOpenWindow(bw);
+
+        }
 
     }
 }

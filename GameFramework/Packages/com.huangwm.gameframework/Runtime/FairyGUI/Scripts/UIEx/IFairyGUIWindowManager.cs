@@ -20,8 +20,8 @@ namespace GF.UI
     	#region 数据成员
         //包管理器
         protected FairyGUIPackageManager _fairyGUIPackageManager=new FairyGUIPackageManager();
-	    //显示窗体栈
-	    protected Stack<FairyGUIBaseWindow> _showWindowStack = new Stack<FairyGUIBaseWindow>();
+	    //显示窗体链表
+	    protected LinkedList<FairyGUIBaseWindow> _showWindowList = new LinkedList<FairyGUIBaseWindow>();
 	    //窗体列表
 	    protected List<FairyGUIBaseWindow> _windowList=new List<FairyGUIBaseWindow>();
 
@@ -111,12 +111,32 @@ namespace GF.UI
     	{
 	     
     	}
+        
+        protected void AfterOpenWindow(FairyGUIBaseWindow bw)
+        {
+	        if (!bw.AssetLoaded)
+	        {
+		        _fairyGUIPackageManager.ReloadAssets(bw.FairyGuiWindowInfo.packageName);
+	        }
+		    
+	        if (!bw.HasOpen)
+	        {
+		        _showWindowList.AddLast(bw);
+		        bw.HasOpen = true;
+		        bw.OnOpen();
+		        bw.Show();
+	        }
+	        else
+	        {
+		        bw.OnResume();
+	        }
+        }
     
         /// <summary>
         /// 暂时隐藏窗体
         /// </summary>
         /// <param name="FairyGUIWindowName">窗体类型枚举</param>
-    	public void HideWindow(Type FairyGUIWindowType,bool unLoadAssets = false)
+    	public void HideWindow(Type FairyGUIWindowType,bool isHide = true,bool unLoadAssets = false)
     	{
     		
 	        FairyGUIBaseWindow bw = GetFairyGUIBaseWindow(FairyGUIWindowType);
@@ -125,50 +145,56 @@ namespace GF.UI
 		        Debug.LogError("要关闭的不是窗体，请检查HideWindow函数的参数是否为FairyGUIBaseWindow的子类并且已在注册表注册！");
 		        return;
 	        }
-		    while(_showWindowStack.Count>0)
-		    {
-			    bw = _showWindowStack.Pop();
-			    bw.OnPause();
-			    bw.Hide();
-			    if (unLoadAssets)
-			    {
-				    _fairyGUIPackageManager.UnloadAssets(bw.FairyGuiWindowInfo.packageName);
-				    bw.AssetLoaded = false;
-			    }
-			    
-			    if (bw.Name == FairyGUIWindowType.Name)
-				    break;
-		    }
-		    if (_showWindowStack.Count >= 1)
-		    {
-			    bw = _showWindowStack.Peek();
-			    if (!bw.AssetLoaded)
-			    {
-				    _fairyGUIPackageManager.ReloadAssets(bw.FairyGuiWindowInfo.packageName);
-				    bw.AssetLoaded = true;
-			    }
-			    
-			    bw.OnResume();
-			    bw.Show();
-		    }
-    	}
+
+	        bw = null;
+	        foreach (var view in _showWindowList)
+	        {
+		        if (view.Name == FairyGUIWindowType.Name)
+		        {
+			        bw = view;
+			        break;
+		        }
+	        }
+
+	        if (bw != null)
+	        {
+		        if (isHide)
+		        {
+			        bw.OnClose();
+			        bw.HasOpen = false;
+			        _showWindowList.Remove(bw);
+		        }
+		        else
+		        {
+			        bw.OnPause();
+			        unLoadAssets = false;
+		        }
+		        
+		        if (unLoadAssets)
+		        {
+			        _fairyGUIPackageManager.UnloadAssets(bw.FairyGuiWindowInfo.packageName);
+			        bw.AssetLoaded = false;
+		        }
+	        }
+	        
+        }
         
         /// <summary>
         /// 销毁所有窗体
         /// </summary>
 	    public void DestroyAllWindow()
 	    {
-		    while (_showWindowStack.Count > 0)
-		    {
-			    FairyGUIBaseWindow bw = _showWindowStack.Pop();
-			    bw.OnBeforeClose();
-			    bw.OnClose();
-			    bw.Hide();
-			   // _fairyGUIPackageManager.UnloadAssets(bw.FairyGuiWindowInfo.packageName);
-		    }
-
-		    _fairyGUIPackageManager.RemoveAllPackage();
 		    
+		    var bw = _showWindowList.First;
+			FairyGUIBaseWindow view = null;
+			while (bw != null)
+			{
+				view = bw.Value;
+				 view.OnClose();
+				bw = bw.Next;
+			}
+		    _showWindowList.Clear();
+		    _fairyGUIPackageManager.RemoveAllPackage();
 	    }
 
         public override void OnDisable()
