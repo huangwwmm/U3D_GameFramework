@@ -182,7 +182,7 @@ namespace GF.UI
         /// <summary>
         /// 销毁所有窗体
         /// </summary>
-	    public void DestroyAllWindow()
+	    private void DestroyAllWindow()
 	    {
 		    
 		    var bw = _showWindowList.First;
