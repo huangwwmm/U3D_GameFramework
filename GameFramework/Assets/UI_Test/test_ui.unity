@@ -150,11 +150,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 024553ecf96a65649b929ee08c9214fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  packageName: TestUI
-  componentName: TestUI
+  packageName: Main
+  componentName: Main
   fitScreen: 0
   sortingOrder: 0
-  packagePath: Assets/UI_Test/Res/Fgui/TestUI/TestUI
+  packagePath: Assets/UI_Test/Res/Fgui/Main/Main
   renderMode: 0
   renderCamera: {fileID: 0}
   position: {x: 0, y: 0, z: 0}
@@ -174,7 +174,7 @@ Transform:
   m_GameObject: {fileID: 728173036}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.017574692, y: 0.017574692, z: 0.017574692}
+  m_LocalScale: {x: 0.016666666, y: 0.016666666, z: 0.016666666}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3
@@ -278,6 +278,7 @@ GameObject:
   - component: {fileID: 1652681643}
   - component: {fileID: 1652681642}
   - component: {fileID: 1652681641}
+  - component: {fileID: 1652681640}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -285,6 +286,26 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &1652681640
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1652681639}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a723f7fd716aac049aa24e9186f18685, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scaleMode: 1
+  screenMatchMode: 0
+  designResolutionX: 800
+  designResolutionY: 600
+  fallbackScreenDPI: 96
+  defaultSpriteDPI: 96
+  constantScaleFactor: 1
+  ignoreOrientation: 0
 --- !u!81 &1652681641
 AudioListener:
   m_ObjectHideFlags: 0

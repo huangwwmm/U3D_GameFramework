@@ -1,1 +1,1 @@
-[{"packagePath":"Assets/UI_Test/Res/Fgui/TestUI/","packageName":"TestUI","WindowNames":["TestUI"],"fairyGuiWindowType":1},{"packagePath":"Assets/UI_Test/Res/Fgui/TestUI2/","packageName":"TestUI2","WindowNames":["TestUI2"],"fairyGuiWindowType":1}]
+[{"packagePath":"Assets/UI_Test/Res/Fgui/Main/","packageName":"Main","WindowNames":["Main","Boss"],"fairyGuiWindowType":1}]
