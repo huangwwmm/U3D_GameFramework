@@ -65,9 +65,9 @@ namespace FairyGUI.VFairyGUI.Editor
 
                 _fairyGUIConfig.Add(fairyGuiWindowInfo);
             }
-            if (!Directory.Exists(Application.streamingAssetsPath))
+            if (!Directory.Exists(ConstData.UIConfigPathBase))
             {
-                Directory.CreateDirectory(Application.streamingAssetsPath);
+                Directory.CreateDirectory(ConstData.UIConfigPathBase);
             }
             string bytePath = ConstData.UIConfigPath;
             if (File.Exists(bytePath))
