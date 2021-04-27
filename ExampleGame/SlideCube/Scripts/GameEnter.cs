@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using GF.Core;
-using Test.Game;
+//using Test.Game;
 using UnityEngine;
 
 namespace GF.ExampleGames.SlideCube

@@ -9,6 +9,26 @@
                     "IsDirectory": true
                 }
             ]
+        },
+        {
+            "Name": "TEST",
+            "Links": [
+                {
+                    "Link": "Assets\\TEST",
+                    "Target": "..\\TEST",
+                    "IsDirectory": true
+                }
+            ]
+        },
+        {
+            "Name": "UI_Test",
+            "Links": [
+                {
+                    "Link": "Assets\\UI_Test",
+                    "Target": "..\\UI_Test",
+                    "IsDirectory": true
+                }
+            ]
         }
     ]
 }
