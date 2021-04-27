@@ -11,7 +11,7 @@ namespace GF.UI
     {
         private GGroup m_group;
         private GButton m_button;
-        public override void Init()
+        public override void OnInitWindow()
         {
             m_group = contentPane.GetChild("button_group").asGroup;
             m_button = contentPane.GetChild("n0").asButton;

@@ -75,7 +75,7 @@ namespace GF.UI
 			GComponent view = UIPackage.CreateObject(bw.FairyGuiWindowInfo.packageName, windowName).asCom;
 			bw.SetWindowView(view);
 			_windowList.Add(bw);
-			bw.Init();
+			bw.OnInitWindow();
 			AfterOpenWindow(bw,sourceData);
 		}
 

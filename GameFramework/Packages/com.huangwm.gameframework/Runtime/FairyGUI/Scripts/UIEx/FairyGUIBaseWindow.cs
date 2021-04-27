@@ -76,7 +76,7 @@ namespace GF.UI
         /// <summary>
         /// 第一次创建界面实例，用来获取需要操控的组件
         /// </summary>
-        public abstract void Init();
+        public abstract void OnInitWindow();
 
         /// <summary>
         /// 打开界面，主要用于逻辑注册事件，根据传入的数据初始化界面

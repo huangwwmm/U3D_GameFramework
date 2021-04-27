@@ -10,7 +10,7 @@ namespace GF.UI
     public class Boss : FairyGUIBaseWindow
     {
         private Transition t4;
-        public override void Init()
+        public override void OnInitWindow()
         {
             t4 = contentPane.GetTransition("t4");
         }
