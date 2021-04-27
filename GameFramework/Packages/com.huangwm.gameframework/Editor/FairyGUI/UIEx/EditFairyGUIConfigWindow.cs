@@ -24,7 +24,7 @@ namespace FairyGUI.VFairyGUI.Editor
         /// 更新枚举类文件
         /// </summary>
         /// <param name="fairyGUIResourcesPath">FairyGUI资源所在路径</param>
-        [MenuItem("Window/VFairyGUI - UpdateConfigFile")]
+        [MenuItem("Window/FairyGUIEx - UpdateConfigFile")]
 
         public static void UpdateWindowInformation()
         {

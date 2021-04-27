@@ -11,7 +11,7 @@ namespace GF.UI
     
         //统计资源后文件存放位置
         private static string _windowInformation = "WindowInformation.json";
-        public static string UIConfigPath = Application.streamingAssetsPath + "/" + _windowInformation;
+        public static string UIConfigPath = Application.dataPath + "/../Build/" + _windowInformation;
         
         //资源包的前缀
         public static string ResPackagePrefix = "Res";
