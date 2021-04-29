@@ -13,8 +13,8 @@ namespace GF.Timer
         public float tm;
         public float life;
         public int count;
-        public Action m_scheduler;
-        public Action m_frame;
+        public Action<float> m_scheduler;
+        public Action<float> m_frame;
         public void OnAlloc()
         {
             m_frame = null;

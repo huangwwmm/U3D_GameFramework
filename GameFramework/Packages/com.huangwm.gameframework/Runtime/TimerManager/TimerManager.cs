@@ -36,7 +36,7 @@ namespace GF.Timer
 
                 if (pCur.m_frame != null)
                 {
-                    pCur.m_frame();
+                    pCur.m_frame(deltaTime);
                 }
                 
                 pCur.tm += deltaTime;
@@ -44,7 +44,7 @@ namespace GF.Timer
                 {
                     if (pCur.m_scheduler != null)
                     {
-                        pCur.m_scheduler();
+                        pCur.m_scheduler(deltaTime);
                     }
 
                     pCur.tm -= pCur.life;
@@ -81,7 +81,7 @@ namespace GF.Timer
         /// <param name="on_time_func">完成的时候的调度方法</param>
         /// <param name="on_time_func">每帧执行方法</param>
         /// <returns>每个调度器的标签值</returns>
-        public int scheduleOnce(float delay, Action on_time_func)
+        public int scheduleOnce(float delay, Action<float> on_time_func)
         {
             return schedule(delay, on_time_func,null, 1);
         }
@@ -95,7 +95,7 @@ namespace GF.Timer
         /// <param name="on_time_func">每帧执行方法</param>
         /// <param name="count">调度次数  如果为-1 则永远调度</param>
         /// <returns>每个调度器的标签值</returns>
-        public int schedule(float interval, Action on_time_func,Action per_frame_func = null,  int count = -1)
+        public int schedule(float interval, Action<float> on_time_func,Action<float> per_frame_func = null,  int count = -1)
         {
             ++m_tagCount;
             var scheduler = m_objectPool.Alloc();
